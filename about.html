@@ -3,10 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Learn more about Sajid Tech Solutions.">
+    <meta name="description" content="Learn about Sajid Tech Solutions - Innovating digital tools and software for productivity and simplicity in Bangladesh.">
+    <meta name="keywords" content="Sajid Tech Solutions, Bangladesh tech, productivity tools, web apps, Ramadan Planner">
     <title>Sajid Tech Solutions - About Us</title>
-    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles2.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Sajid Tech Solutions",
+        "url": "https://sajidtechsolutions.github.io",
+        "logo": "https://sajidtechsolutions.github.io/assets/images/logo.png",
+        "description": "Sajid Tech Solutions crafts innovative digital tools and software to simplify technology for everyone.",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+8801745-897322",
+            "contactType": "Customer Service",
+            "email": "sajidtechsolutions@gmail.com"
+        }
+    }
+    </script>
 </head>
 <body>
     <header>
@@ -14,10 +32,10 @@
             <img src="logo.png" alt="Sajid Tech Solutions Logo" style="height: 50px;">
         </div>
         <nav>
-            <button class="nav-toggle">Menu</button>
-            <ul>
+            <button class="nav-toggle">☰</button>
+            <ul class="nav-menu">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About Us</a></li>
+                <li><a href="about.html" class="active">About Us</a></li>
                 <li><a href="services.html">Services</a></li>
                 <li><a href="apps.html">Our Apps</a></li>
                 <li><a href="blog.html">Blog</a></li>
@@ -25,28 +43,97 @@
             </ul>
         </nav>
     </header>
-    <section class="about">
-        <h1>About Us</h1>
-        <p>At Sajid Tech Solutions, we craft the future with innovative technology.</p>
-        <div class="team-grid">
-            <div class="team-member">
-                <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
-                    <circle cx="50" cy="50" r="40" fill="url(#grad2)"/>
-                    <defs>
-                        <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#00ff00;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <h3>Md. Sajidul Islam</h3>
-                <p>Founder & CEO</p>
+
+    <main>
+        <section class="about-hero">
+            <h1>About Sajid Tech Solutions</h1>
+            <p class="tagline">Crafting the Future with Innovative Technology</p>
+        </section>
+
+        <section class="about-content">
+            <div class="intro">
+                <h2>Our Story</h2>
+                <p>প্রযুক্তির এই যুগে <strong>Sajid Tech Solutions</strong> এমন একটি প্রতিষ্ঠান যা মানুষের দৈনন্দিন প্রযুক্তিগত প্রয়োজনকে সহজ এবং কার্যকরী করার জন্য ডিজিটাল টুলস এবং সফটওয়্যার তৈরি করছে। আমরা মূলত প্রোডাক্টিভিটি টুলস, ওয়েব অ্যাপ্লিকেশন এবং ইউটিলিটি সফটওয়্যার ডেভেলপ করি, যা ব্যক্তি ও প্রতিষ্ঠানের জন্য সময় এবং সম্পদ ব্যবস্থাপনায় সহায়ক ভূমিকা রাখে।</p>
             </div>
-        </div>
-    </section>
+
+            <div class="mission-vision">
+                <div class="mission">
+                    <h3>Our Mission</h3>
+                    <p>Sajid Tech Solutions-এর মূল লক্ষ্য সাশ্রয়ী, সহজ-ব্যবহারযোগ্য এবং কার্যকরী সফটওয়্যার সল্যুশন তৈরি করা। আমরা চাই মানুষ প্রযুক্তির সুবিধা গ্রহণ করে নিজেদের কাজকে আরও সহজ, দ্রুত এবং দক্ষভাবে সম্পাদন করতে পারুক।</p>
+                </div>
+                <div class="vision">
+                    <h3>Our Vision</h3>
+                    <p>আমরা Sajid Tech Solutions-কে একটি পূর্ণাঙ্গ সফটওয়্যার ডেভেলপমেন্ট কোম্পানি হিসেবে গড়ে তুলতে চাই, যেখানে কাস্টম ওয়েবসাইট, মোবাইল অ্যাপ এবং এআই-ভিত্তিক টুলস তৈরি করা হবে।</p>
+                </div>
+            </div>
+
+            <div class="projects">
+                <h2>Our Work</h2>
+                <div class="project-grid">
+                    <div class="project-card">
+                        <h4>Productivity Tools</h4>
+                        <p>অফিস, স্টাডি এবং ব্যক্তিগত ব্যবহারের জন্য আধুনিক ডিজিটাল টুলস তৈরি করছি, যা সময় ব্যবস্থাপনায় সাহায্য করবে।</p>
+                    </div>
+                    <div class="project-card">
+                        <h4>Utility Tools</h4>
+                        <p>সাধারণ মানুষের প্রযুক্তিগত কাজকে সহজ করার জন্য ছোটখাটো কিন্তু কার্যকরী টুলস ডেভেলপ করা হচ্ছে।</p>
+                    </div>
+                    <div class="project-card">
+                        <h4>Ramadan Planner App</h4>
+                        <p>রমাদান মাসের পরিকল্পনা, আমল ট্র্যাকার, সাহরি-ইফতার রিমাইন্ডারসহ একটি অল-ইন-ওয়ান অ্যাপ, যা মুসলিমদের জন্য রমাদান পালন আরও সহজ এবং সুচারুভাবে সম্পন্ন করতে সহায়ক হবে। (আসছে শীঘ্রই)</p>
+                    </div>
+                    <div class="project-card">
+                        <h4>Web Development</h4>
+                        <p>বিভিন্ন ক্লায়েন্টদের জন্য ওয়েবসাইট ও কাস্টম ওয়েব অ্যাপ ডেভেলপ করে দিচ্ছি।</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="future">
+                <h2>Looking Ahead</h2>
+                <p>আমরা Sajid Tech Solutions-কে একটি পূর্ণাঙ্গ সফটওয়্যার কোম্পানি হিসেবে গড়ে তুলতে চাই, যার মধ্যে রয়েছে:</p>
+                <ul>
+                    <li>ফুল-স্কেল সফটওয়্যার ডেভেলপমেন্ট সার্ভিস চালু করা</li>
+                    <li>ক্লাউড-ভিত্তিক সার্ভিস এবং ডেটা ম্যানেজমেন্ট টুলস তৈরি করা</li>
+                    <li>এআই-ভিত্তিক অ্যাপস ও চ্যাটবট সল্যুশন ডেভেলপ করা</li>
+                    <li>ডিজিটাল মার্কেটিং ও ই-কমার্স সমাধান প্রদান করা</li>
+                </ul>
+            </div>
+
+            <div class="team">
+                <h2>Meet Our Founder</h2>
+                <div class="team-member">
+                    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                        <circle cx="60" cy="60" r="50" fill="url(#grad2)" />
+                        <defs>
+                            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#00ff00;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <h3>Md. Sajidul Islam</h3>
+                    <p>Founder & CEO</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <h2>Join Our Journey</h2>
+            <p>আমাদের সল্যুশন সম্পর্কে আরও জানতে বা আমাদের টুলস ব্যবহার করতে আগ্রহী হলে আমাদের সাথে যোগাযোগ করুন!</p>
+            <a href="contact.html" class="cta-button">Get in Touch</a>
+        </section>
+    </main>
+
     <footer>
         <p>© 2025 Sajid Tech Solutions. All Rights Reserved.</p>
+        <div class="social-links">
+            <a href="https://facebook.com/sajidtechsolutions">Facebook</a> |
+            <a href="mailto:sajidtechsolutions@gmail.com">Email</a> |
+            <a href="tel:+8801745-897322">+880 1745-897322</a>
+        </div>
     </footer>
-    <script src="scripts.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
