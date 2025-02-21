@@ -18,16 +18,18 @@ body {
 
 /* Header */
 header {
+    background-color: #1A1A1A;
+    padding: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 40px;
-    background: rgba(0, 0, 0, 0.8);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
+}
+
+.logo img {
+    height: 50px;
 }
 
 .logo {
@@ -66,15 +68,13 @@ nav ul li a:hover {
     color: #ffd700;
 }
 
-.nav-toggle {
+nav .nav-toggle {
     display: none;
-    background: linear-gradient(45deg, #ffd700, #00ff00);
-    color: #121212;
+    background: none;
     border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
+    color: #FFFFFF;
+    font-size: 1.5rem;
     cursor: pointer;
-    font-weight: 600;
 }
 
 /* Hero */
@@ -101,6 +101,24 @@ nav ul li a:hover {
     font-size: 1.5em;
     margin-bottom: 40px;
     animation: fadeInUp 1s ease 0.5s backwards;
+}
+
+/* About Hero */
+.about-hero {
+    background: linear-gradient(135deg, #1D4ED8, #121212);
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.about-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.tagline {
+    font-size: 1.2rem;
+    color: #ffd700;
 }
 
 /* Buttons */
@@ -324,7 +342,7 @@ footer {
         padding: 20px;
     }
 
-    .nav-toggle {
+    nav .nav-toggle {
         display: block;
     }
 
@@ -332,19 +350,19 @@ footer {
         display: none;
         flex-direction: column;
         position: absolute;
-        top: 80px;
+        top: 70px;
         left: 0;
         width: 100%;
-        background: rgba(0, 0, 0, 0.9);
-        padding: 20px 0;
+        background-color: #1A1A1A;
     }
 
     nav ul.active {
         display: flex;
     }
 
-    nav ul li {
-        margin: 15px 0;
+    nav ul li a {
+        padding: 15px;
+        text-align: center;
     }
 
     .hero {
@@ -376,4 +394,25 @@ footer {
         padding: 30px;
         width: 85%;
     }
+}
+
+/* Join Our Journey Section */
+.join-journey {
+    text-align: center; /* Center align text */
+    padding: 60px 20px; /* Add padding for spacing */
+}
+
+.join-journey h2 {
+    font-size: 2.5em; /* Adjust font size as needed */
+    margin-bottom: 20px; /* Space below the heading */
+}
+
+.join-journey p {
+    font-size: 1.2em; /* Adjust font size for paragraph */
+    margin-bottom: 30px; /* Space below the paragraph */
+}
+
+.join-journey .cta-button {
+    display: inline-block; /* Ensure button is inline */
+    margin-top: 20px; /* Space above the button */
 }
