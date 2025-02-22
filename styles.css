@@ -3,17 +3,18 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    user-select: none; /* Prevent text selection */
+    user-select: none; /* Prevent text selection from CSS 1 */
 }
 
 body {
-    background: linear-gradient(135deg, #121212 0%, #1f1f1f 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, #121212 0%, #1f1f1f 100%); /* From CSS 1 */
+    color: #E0E0E0; /* From CSS 2 */
     font-family: 'Poppins', sans-serif;
-    line-height: 1.8;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    line-height: 1.8; /* From CSS 1 */
+    min-height: 100vh; /* From CSS 1 */
+    display: flex; /* From CSS 1 */
+    flex-direction: column; /* From CSS 1 */
+    overflow-x: hidden; /* From CSS 2 */
 }
 
 /* Header */
@@ -105,45 +106,101 @@ nav .nav-toggle {
 
 /* About Hero */
 .about-hero {
-    background: linear-gradient(135deg, #1D4ED8, #121212);
-    padding: 80px 20px;
+    background: linear-gradient(135deg, #1D4ED8 0%, #0D0D0D 100%); /* From CSS 2 */
+    padding: 100px 20px; /* From CSS 2 */
     text-align: center;
+    position: relative; /* From CSS 2 */
+    overflow: hidden; /* From CSS 2 */
+    animation: fadeIn 1s ease; /* From CSS 2 */
+}
+
+.about-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.1), transparent 70%); /* From CSS 2 */
+    z-index: 0;
 }
 
 .about-hero h1 {
-    font-size: 3rem;
+    font-size: 3.5rem; /* From CSS 2 */
     font-weight: 800;
-    margin-bottom: 10px;
+    color: #FFD700; /* From CSS 2 */
+    position: relative; /* From CSS 2 */
+    z-index: 1; /* From CSS 2 */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7); /* From CSS 2 */
+    animation: slideInDown 1s ease; /* From CSS 2 */
 }
 
-.tagline {
-    font-size: 1.2rem;
-    color: #ffd700;
+.about-hero .tagline {
+    font-size: 1.4rem; /* From CSS 2 */
+    font-weight: 400; /* From CSS 2 */
+    color: #E0E0E0; /* From CSS 2 */
+    margin-top: 10px; /* From CSS 2 */
+    position: relative; /* From CSS 2 */
+    z-index: 1; /* From CSS 2 */
+    opacity: 0.9; /* From CSS 2 */
+    animation: fadeInUp 1s ease 0.5s; /* From CSS 2 */
+}
+
+/* About Content Section */
+.about-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px;
+    animation: fadeIn 1s ease;
+}
+
+.about-content h2 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #FFD700;
+    margin-bottom: 30px;
+    position: relative;
+    display: inline-block;
+    animation: bounceIn 1s ease;
+}
+
+.about-content h2::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 50%;
+    height: 3px;
+    background: linear-gradient(90deg, #FFD700, transparent);
 }
 
 /* Buttons */
 .cta-button {
-    background: linear-gradient(45deg, #ffd700, #00ff00);
-    color: #121212;
-    padding: 15px 30px;
+    background: linear-gradient(45deg, #ffd700, #00ff00); /* From CSS 1 */
+    color: #121212; /* From CSS 1 */
+    padding: 15px 40px; /* From CSS 2 */
     text-decoration: none;
-    border-radius: 25px;
+    border-radius: 50px; /* From CSS 2 */
+    font-size: 1.2rem; /* From CSS 2 */
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    text-transform: uppercase; /* From CSS 1 */
+    letter-spacing: 1px; /* From CSS 1 */
     display: inline-block;
-    margin: 10px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    margin: 10px; /* From CSS 1 */
+    position: relative; /* From CSS 2 */
+    z-index: 1; /* From CSS 2 */
+    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s; /* Combined */
 }
 
 .cta-button:hover {
-    transform: translateY(-5px);
-    opacity: 0.9;
+    transform: translateY(-5px); /* From CSS 1 */
+    opacity: 0.9; /* From CSS 1 */
+    background: #1A1A1A; /* From CSS 2 */
 }
 
 /* Sections */
 .services, .about, .apps, .blog, .contact {
-    padding: 80px 40px;
+    padding: 80px 40px; /* From CSS 1 */
     text-align: center;
 }
 
@@ -158,23 +215,25 @@ h1, h2 {
 .service-grid, .team-grid, .app-grid, .blog-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 40px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+    gap: 40px; /* From CSS 1 */
+    max-width: 1200px; /* From CSS 1 */
+    margin: 0 auto; /* From CSS 1 */
+    padding: 0 20px; /* From CSS 1 */
 }
 
 .service-item, .team-member, .app-item, .blog-item {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 40px;
+    background: #1A1A1A; /* From CSS 2 */
+    padding: 40px; /* From CSS 1 */
     border-radius: 15px;
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* From CSS 2 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Combined */
+    animation: fadeIn 1s ease; /* From CSS 2 */
 }
 
 .service-item:hover, .team-member:hover, .app-item:hover, .blog-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    transform: translateY(-10px); /* From CSS 1 */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7); /* From CSS 1 & 2 */
 }
 
 .service-item svg, .team-member svg, .app-item svg, .blog-item svg {
@@ -183,27 +242,30 @@ h1, h2 {
     transition: transform 0.3s ease;
 }
 
-.service-item:hover svg, .app-item:hover svg, .blog-item:hover svg {
-    transform: scale(1.2);
+.service-item:hover svg, .app-item:hover svg, .blog-item:hover svg, .team-member:hover svg {
+    transform: scale(1.2); /* From CSS 1 & adjusted from CSS 2 */
 }
 
 .team-member svg {
     border-radius: 50%;
-    margin: 0 auto 20px;
 }
 
 .service-item h2, .app-item h2, .blog-item h2 {
-    font-size: 1.8em;
-    margin-bottom: 20px;
+    font-size: 1.8rem; /* From CSS 2 */
+    color: #FFD700; /* From CSS 2 */
+    margin: 15px 0; /* From CSS 2 */
 }
 
 .service-item h3, .team-member h3 {
-    font-size: 1.5em;
+    font-size: 1.6rem; /* From CSS 2 */
+    font-weight: 600; /* From CSS 2 */
+    color: #FFD700; /* From CSS 2 */
     margin-bottom: 10px;
 }
 
 .service-item p, .team-member p, .app-item p, .blog-item p {
-    font-size: 1em;
+    font-size: 1.2rem; /* From CSS 2 */
+    color: #D1D1D1; /* From CSS 2 */
     margin-bottom: 20px;
 }
 
@@ -243,7 +305,7 @@ h1, h2 {
 
 /* Modal Styles */
 .modal {
-    display: none; /* Hidden by default */
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -300,13 +362,246 @@ h1, h2 {
     color: #ffffff;
 }
 
+/* Intro */
+.intro p {
+    font-size: 1.2rem;
+    color: #D1D1D1;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1s ease;
+}
+
+/* Mission & Vision */
+.mission-vision {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin: 60px 0;
+}
+
+.mission, .vision {
+    background: #1A1A1A;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: fadeIn 1s ease;
+}
+
+.mission:hover, .vision:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+}
+
+.mission h3, .vision h3 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #FFD700;
+    margin-bottom: 15px;
+}
+
+.mission p, .vision p {
+    font-size: 1.1rem;
+    color: #D1D1D1;
+}
+
+/* Projects */
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.project-card {
+    background: linear-gradient(145deg, #1A1A1A, #141414);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: fadeIn 1s ease;
+}
+
+.project-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+}
+
+.project-card h4 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #FFD700;
+    margin-bottom: 15px;
+}
+
+.project-card p {
+    font-size: 1rem;
+    color: #D1D1D1;
+}
+
+/* Future */
+.future p {
+    font-size: 1.2rem;
+    color: #D1D1D1;
+    margin-bottom: 20px;
+}
+
+.future ul {
+    list-style: none;
+    margin-left: 20px;
+}
+
+.future ul li {
+    font-size: 1.1rem;
+    color: #E0E0E0;
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 15px;
+}
+
+.future ul li::before {
+    content: "✨";
+    position: absolute;
+    left: 0;
+    color: #FFD700;
+}
+
+/* Team */
+.team {
+    text-align: center;
+    margin: 60px 0;
+}
+
+/* CTA Section */
+.cta {
+    background: linear-gradient(135deg, #FFD700 0%, #1D4ED8 100%);
+    padding: 80px 20px;
+    text-align: center;
+    margin: 40px 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 1s ease;
+}
+
+.cta::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 0;
+}
+
+.cta h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #0D0D0D;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 20px;
+}
+
+.cta p {
+    font-size: 1.2rem;
+    color: #1A1A1A;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 30px;
+}
+
 /* Footer */
 footer {
-    padding: 40px;
-    background: rgba(0, 0, 0, 0.8);
+    padding: 40px; /* From CSS 1 */
+    background: rgba(0, 0, 0, 0.8); /* From CSS 1 */
     text-align: center;
-    font-size: 0.9em;
-    margin-top: auto;
+    font-size: 0.9rem; /* From CSS 2 */
+    margin-top: auto; /* From CSS 1 */
+    border-top: 1px solid rgba(255, 215, 0, 0.2); /* From CSS 2 */
+}
+
+footer p {
+    color: #A1A1A1; /* From CSS 2 */
+}
+
+.social-links a {
+    color: #FFD700;
+    text-decoration: none;
+    font-size: 1rem;
+    margin: 0 15px;
+    transition: color 0.3s;
+}
+
+.social-links a:hover {
+    color: #FFFFFF;
+}
+
+/* Join Our Journey Section */
+.join-journey {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.join-journey h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.join-journey p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+}
+
+.join-journey .cta-button {
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.menu {
+    display: none;
+}
+
+.menu.active {
+    display: block;
+}
+
+#menu {
+    display: none;
+}
+
+#menu.active {
+    display: block;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1A1A1A;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ffd700;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #00ff00;
+}
+
+/* For Firefox */
+html {
+    scrollbar-color: #ffd700 #1A1A1A;
+    scrollbar-width: thin;
 }
 
 /* Animations */
@@ -334,6 +629,11 @@ footer {
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 /* Responsive */
@@ -377,6 +677,14 @@ footer {
         font-size: 1.2em;
     }
 
+    .about-hero h1 {
+        font-size: 2.5rem; /* From CSS 2 */
+    }
+
+    .about-hero .tagline {
+        font-size: 1.1rem; /* From CSS 2 */
+    }
+
     .services, .about, .apps, .blog, .contact {
         padding: 60px 20px;
     }
@@ -390,29 +698,43 @@ footer {
         padding: 30px;
     }
 
+    .mission-vision {
+        grid-template-columns: 1fr;
+    }
+
     .modal-content {
         padding: 30px;
         width: 85%;
     }
-}
 
-/* Join Our Journey Section */
-.join-journey {
-    text-align: center; /* Center align text */
-    padding: 60px 20px; /* Add padding for spacing */
-}
+    .nav-menu {
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #444;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
-.join-journey h2 {
-    font-size: 2.5em; /* Adjust font size as needed */
-    margin-bottom: 20px; /* Space below the heading */
-}
+    .nav-menu li a {
+        color: #fff;
+        padding: 10px 15px;
+        text-decoration: none;
+        display: block;
+    }
 
-.join-journey p {
-    font-size: 1.2em; /* Adjust font size for paragraph */
-    margin-bottom: 30px; /* Space below the paragraph */
-}
+    .nav-menu li a:hover {
+        background-color: #555;
+        color: #ffd700;
+    }
 
-.join-journey .cta-button {
-    display: inline-block; /* Ensure button is inline */
-    margin-top: 20px; /* Space above the button */
+    .nav-toggle {
+        background-color: #444;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .nav-toggle:hover {
+        background-color: #555;
+    }
 }
