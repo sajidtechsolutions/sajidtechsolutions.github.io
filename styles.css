@@ -192,10 +192,10 @@ nav .nav-toggle {
     transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s; /* Combined */
 }
 
+/* Remove or comment out the hover effect */
 .cta-button:hover {
-    transform: translateY(-5px); /* From CSS 1 */
-    opacity: 0.9; /* From CSS 1 */
-    background: #1A1A1A; /* From CSS 2 */
+    /* Remove or comment out the color change */
+    /* background-color: newColor; */ /* Example of a hover color */
 }
 
 /* Sections */
