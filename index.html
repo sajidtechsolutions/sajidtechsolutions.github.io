@@ -1108,7 +1108,7 @@
         }
 
         // Enhanced Form Submission
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Validate all fields (only required fields will block submission)
@@ -1136,13 +1136,28 @@
                 submitLoading.style.display = 'inline';
                 submitBtn.disabled = true;
 
-                // Simulate form submission (replace with actual API call)
-                setTimeout(() => {
-                    showModal();
+                // Get form data
+                const formData = {
+                    name: form.elements['name'].value,
+                    whatsapp: form.elements['phone'].value,
+                    website: form.elements['website'].value,
+                    message: form.elements['message'].value,
+                    timestamp: new Date()
+                };
+
+                // Send data to Firestore
+                try {
+                    await addDoc(collection(db, "contactSubmissions"), formData);
+                    showModal(); // Show success modal
+                    form.reset(); // Clear form fields
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    alert("There was an error sending your message. Please try again.");
+                } finally {
                     submitText.style.display = 'inline';
                     submitLoading.style.display = 'none';
                     submitBtn.disabled = false;
-                }, 1500);
+                }
             } else {
                 // Scroll to first error
                 const firstError = form.querySelector('.form-input.error');
@@ -1323,6 +1338,32 @@
                 }
             });
         });
+    </script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyACoeRx2OI5iUMqTfN6JxAKvF2W60ryZZI",
+            authDomain: "sajid-tech.firebaseapp.com",
+            projectId: "sajid-tech",
+            storageBucket: "sajid-tech.firebasestorage.app",
+            messagingSenderId: "20807384664",
+            appId: "1:20807384664:web:89062abbb525ef5f89142d",
+            measurementId: "G-38Q9055HL8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
     </script>
 </body>
 </html>
