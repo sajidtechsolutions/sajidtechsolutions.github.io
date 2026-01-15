@@ -1,1369 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sajid Tech Solutions | Android App Development</title>
-    <meta name="description" content="Transform your website into a powerful Android app. Professional web-to-APK conversion services with custom logos, offline support, and neumorphic design.">
-    <meta name="keywords" content="Android app development, web to APK, HTML to Android, Android app converter, Bangladesh app developer">
-    <meta name="author" content="Sajid Tech Solutions">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Sajid Tech Solutions | Android App Development">
-    <meta property="og:description" content="Transform your website into a powerful Android app. Professional web-to-APK conversion services.">
-    <meta property="og:image" content="https://via.placeholder.com/1200x630/667eea/ffffff?text=Sajid+Tech+Solutions">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="Sajid Tech Solutions | Android App Development">
-    <meta property="twitter:description" content="Transform your website into a powerful Android app. Professional web-to-APK conversion services.">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #e0e5ec;
-            --text-main: #4a5568;
-            --text-light: #a0aaec;
-            --shadow-light: #ffffff;
-            --shadow-dark: #a3b1c6;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            font-family: 'Nunito', sans-serif;
-            color: var(--text-main);
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent; /* Remove blue tap highlight on mobile */
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
-        }
-
-        /* --- Neumorphism Utilities --- */
-        
-        /* The "Extruded" Look (Cards, Buttons) */
-        .neu-flat {
-            background: var(--bg-color);
-            box-shadow: 9px 9px 16px var(--shadow-dark), 
-                       -9px -9px 16px var(--shadow-light);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.3s ease;
-        }
-
-        /* Responsive shadow adjustment for mobile to look less heavy */
-        @media (max-width: 768px) {
-            .neu-flat {
-                box-shadow: 6px 6px 12px var(--shadow-dark), 
-                           -6px -6px 12px var(--shadow-light);
-            }
-        }
-
-        .neu-flat:hover {
-            transform: translateY(-2px);
-            box-shadow: 12px 12px 20px var(--shadow-dark), 
-                       -12px -12px 20px var(--shadow-light);
-        }
-
-        /* Active state for touch devices */
-        .neu-flat:active {
-            transform: scale(0.98);
-        }
-
-        /* The "Pressed" Look (Inputs, Active Buttons) */
-        .neu-pressed, .neu-btn:active {
-            background: var(--bg-color);
-            box-shadow: inset 6px 6px 10px var(--shadow-dark), 
-                       inset -6px -6px 10px var(--shadow-light);
-            border: none; 
-        }
-
-        @media (max-width: 768px) {
-            .neu-pressed {
-                box-shadow: inset 4px 4px 8px var(--shadow-dark), 
-                           inset -4px -4px 8px var(--shadow-light);
-            }
-        }
-
-        /* Round Button Specifics */
-        .neu-icon-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            color: var(--text-main);
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .neu-icon-btn:hover {
-            color: #667eea;
-        }
-
-        /* --- Glassmorphism Utilities --- */
-        .glass {
-            background: rgba(224, 229, 236, 0.45);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-        }
-
-        /* --- Animations --- */
-        @keyframes float {
-            0% { transform: translate(0px, 0px); }
-            50% { transform: translate(0px, -20px); }
-            100% { transform: translate(0px, 0px); }
-        }
-
-        @keyframes float-delayed {
-            0% { transform: translate(0px, 0px); }
-            50% { transform: translate(0px, 20px); }
-            100% { transform: translate(0px, 0px); }
-        }
-
-        .floating-orb-1 {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            opacity: 0.4;
-            filter: blur(60px);
-            z-index: -1;
-            animation: float 8s ease-in-out infinite;
-        }
-
-        .floating-orb-2 {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            opacity: 0.4;
-            filter: blur(50px);
-            z-index: -1;
-            animation: float-delayed 10s ease-in-out infinite;
-        }
-
-        /* Scroll Reveal Class */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease-out;
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* Modal Transition */
-        .modal-overlay {
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .modal-content {
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .hidden-modal {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .visible-modal {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-        }
-        .visible-modal .modal-content {
-            transform: scale(1);
-        }
-        .hidden-modal .modal-content {
-            transform: scale(0.9);
-        }
-
-        /* Back to Top */
-        #backToTop {
-            transition: opacity 0.3s, transform 0.3s;
-        }
-        #backToTop.hidden-btn {
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
-        }
-        #backToTop.visible-btn {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 12px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-color); 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e0; 
-            border-radius: 10px;
-            border: 3px solid var(--bg-color);
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a0aec0; 
-        }
-
-        /* Active Navigation Link */
-        .nav-link.active {
-            color: #667eea;
-            position: relative;
-        }
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #667eea;
-            border-radius: 2px;
-        }
-
-        /* Navbar Scroll Effect */
-        nav.scrolled {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        nav.scrolled .glass {
-            background: rgba(224, 229, 236, 0.85);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        }
-
-        /* Skip to main content (Accessibility) */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #667eea;
-            color: white;
-            padding: 8px 16px;
-            text-decoration: none;
-            z-index: 100;
-            border-radius: 0 0 4px 0;
-        }
-        .skip-link:focus {
-            top: 0;
-        }
-
-        /* Focus visible improvements */
-        *:focus-visible {
-            outline: 2px solid #667eea;
-            outline-offset: 2px;
-            border-radius: 4px;
-        }
-
-        /* Typing Animation */
-        .typing-text {
-            border-right: 3px solid #667eea;
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            0%, 50% { border-color: transparent; }
-            51%, 100% { border-color: #667eea; }
-        }
-
-        /* Scroll Progress Bar */
-        .scroll-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            z-index: 9999;
-            transform-origin: left;
-            transition: transform 0.1s ease-out;
-        }
-
-        /* Form Validation Styles */
-        .form-input.error {
-            border: 2px solid #ef4444;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-        }
-        .form-input.success {
-            border: 2px solid #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
-        .error-message {
-            color: #ef4444;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            margin-left: 0.5rem;
-            display: none;
-        }
-        .error-message.show {
-            display: block;
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            border: 3px solid rgba(102, 126, 234, 0.1);
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Process Steps - Enhanced */
-        .process-container {
-            position: relative;
-        }
-        .process-step {
-            position: relative;
-            padding: 2rem 1rem;
-        }
-        .process-step-number {
-            position: relative;
-            z-index: 10;
-            transition: all 0.3s ease;
-        }
-        .process-step:hover .process-step-number {
-            transform: scale(1.1);
-            box-shadow: 12px 12px 24px var(--shadow-dark), 
-                       -12px -12px 24px var(--shadow-light);
-        }
-        .process-step-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            transition: all 0.3s ease;
-        }
-        .process-step:hover .process-step-icon {
-            transform: translateY(-5px);
-            color: #667eea;
-        }
-
-        /* Enhanced Portfolio Hover */
-        .portfolio-item {
-            position: relative;
-            overflow: hidden;
-        }
-        .portfolio-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .portfolio-item:hover .portfolio-overlay {
-            opacity: 1;
-        }
-
-        /* Pricing Container */
-        .pricing-container {
-            position: relative;
-        }
-
-        /* Premium Card Enhanced Styling */
-        .premium-card-enhanced {
-            background: var(--bg-color);
-            box-shadow: 
-                12px 12px 24px var(--shadow-dark), 
-                -12px -12px 24px var(--shadow-light),
-                0 0 0 2px rgba(102, 126, 234, 0.15),
-                0 0 40px rgba(102, 126, 234, 0.1);
-            border-radius: 30px;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .premium-card-enhanced::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 32px;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .premium-card-enhanced:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 
-                16px 16px 32px var(--shadow-dark), 
-                -16px -16px 32px var(--shadow-light),
-                0 0 0 3px rgba(102, 126, 234, 0.2),
-                0 0 60px rgba(102, 126, 234, 0.15);
-        }
-
-        .premium-card-enhanced:hover::before {
-            opacity: 1;
-        }
-
-        @media (max-width: 768px) {
-            .premium-card-enhanced {
-                box-shadow: 
-                    8px 8px 16px var(--shadow-dark), 
-                    -8px -8px 16px var(--shadow-light),
-                    0 0 0 2px rgba(102, 126, 234, 0.15),
-                    0 0 30px rgba(102, 126, 234, 0.1);
-            }
-            .premium-card-enhanced:hover {
-                box-shadow: 
-                    12px 12px 24px var(--shadow-dark), 
-                    -12px -12px 24px var(--shadow-light),
-                    0 0 0 3px rgba(102, 126, 234, 0.2),
-                    0 0 40px rgba(102, 126, 234, 0.15);
-            }
-        }
-
-        /* Premium Button Enhanced Styling */
-        .premium-btn-enhanced {
-            background: var(--bg-color);
-            box-shadow: 
-                8px 8px 16px var(--shadow-dark), 
-                -8px -8px 16px var(--shadow-light),
-                0 0 0 2px rgba(102, 126, 234, 0.2),
-                inset 0 2px 4px rgba(255, 255, 255, 0.3);
-            border-radius: 9999px;
-            border: 2px solid rgba(102, 126, 234, 0.25);
-            color: #667eea;
-            font-weight: bold;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .premium-btn-enhanced::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .premium-btn-enhanced:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 
-                12px 12px 24px var(--shadow-dark), 
-                -12px -12px 24px var(--shadow-light),
-                0 0 0 3px rgba(102, 126, 234, 0.3),
-                0 0 20px rgba(102, 126, 234, 0.2),
-                inset 0 2px 4px rgba(255, 255, 255, 0.4);
-            color: #764ba2;
-            border-color: rgba(102, 126, 234, 0.35);
-        }
-
-        .premium-btn-enhanced:hover::before {
-            left: 100%;
-        }
-
-        .premium-btn-enhanced:active {
-            transform: translateY(0) scale(0.98);
-            box-shadow: 
-                inset 4px 4px 8px var(--shadow-dark), 
-                inset -4px -4px 8px var(--shadow-light),
-                0 0 0 2px rgba(102, 126, 234, 0.25),
-                0 0 15px rgba(102, 126, 234, 0.15);
-        }
-
-        @media (max-width: 768px) {
-            .premium-btn-enhanced {
-                box-shadow: 
-                    6px 6px 12px var(--shadow-dark), 
-                    -6px -6px 12px var(--shadow-light),
-                    0 0 0 2px rgba(102, 126, 234, 0.2),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.3);
-            }
-            .premium-btn-enhanced:hover {
-                box-shadow: 
-                    8px 8px 16px var(--shadow-dark), 
-                    -8px -8px 16px var(--shadow-light),
-                    0 0 0 3px rgba(102, 126, 234, 0.3),
-                    0 0 15px rgba(102, 126, 234, 0.2),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.4);
-            }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sajid Tech Solutions | Innovating the Future</title>
+    <meta name="description" content="Discover premium software solutions and apps from Sajid Tech Solutions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- PWA / Mobile Optimization -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
-<body class="antialiased selection:bg-purple-200 selection:text-purple-900">
 
-    <!-- Skip to Main Content (Accessibility) -->
-    <a href="#home" class="skip-link">Skip to main content</a>
-
-    <!-- Scroll Progress Bar -->
-    <div class="scroll-progress" id="scrollProgress"></div>
-
-    <!-- Background Orbs for Glass Effect -->
-    <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div class="floating-orb-1 top-[-50px] left-[-50px]"></div>
-        <div class="floating-orb-2 bottom-[10%] right-[-50px]"></div>
-        <div class="floating-orb-1 bottom-[-100px] left-[20%] w-40 h-40" style="background: #4facfe;"></div>
+<body>
+    <div class="background-globes">
+        <div class="globe globe-1"></div>
+        <div class="globe globe-2"></div>
+        <div class="globe globe-3"></div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
-        <div class="glass mx-4 mt-4 rounded-2xl px-4 sm:px-6 py-3 flex justify-between items-center max-w-7xl mx-auto">
-            <!-- Logo -->
-            <a href="#" class="flex items-center gap-2 group">
-                <div class="w-10 h-10 neu-flat flex items-center justify-center text-purple-600 group-hover:text-purple-700">
-                    <i class="fa-brands fa-android text-xl"></i>
-                </div>
-                <span class="text-lg sm:text-xl font-bold tracking-wide text-gray-700">Sajid<span class="text-purple-600">Tech</span></span>
-            </a>
-
-            <!-- Desktop Menu -->
-            <div class="hidden md:flex items-center space-x-8">
-                <a href="#home" class="nav-link text-gray-600 hover:text-purple-600 font-bold tracking-wide transition" aria-label="Navigate to Home section">Home</a>
-                <a href="#services" class="nav-link text-gray-600 hover:text-purple-600 font-bold tracking-wide transition" aria-label="Navigate to Services section">Services</a>
-                <a href="#pricing" class="nav-link text-gray-600 hover:text-purple-600 font-bold tracking-wide transition" aria-label="Navigate to Pricing section">Pricing</a>
-                <a href="#work" class="nav-link text-gray-600 hover:text-purple-600 font-bold tracking-wide transition" aria-label="Navigate to Work section">Work</a>
-                <a href="#testimonials" class="nav-link text-gray-600 hover:text-purple-600 font-bold tracking-wide transition" aria-label="Navigate to Stories section">Stories</a>
-                <a href="#contact" class="neu-flat px-6 py-2 text-purple-600 font-bold hover:text-purple-700 text-sm uppercase tracking-wider">
-                    Let's Talk
-                </a>
+    <header>
+        <nav class="glass-nav">
+            <div class="logo">
+                <span class="logo-icon"><i class="fa-solid fa-cube"></i></span>
+                <span class="logo-text">Sajid Tech</span>
+                <span class="logo-dot">.</span>
             </div>
+            <ul class="nav-links">
+                <li><a href="#hero" class="active">Home</a></li>
+                <li><a href="#apps">Our Apps</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </nav>
+    </header>
 
-            <!-- Mobile Menu Button -->
-            <button id="menuBtn" class="md:hidden neu-icon-btn neu-flat text-gray-600 active:scale-90 transition-transform" aria-label="Open mobile menu" aria-expanded="false">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Mobile Menu Overlay -->
-    <div id="mobileMenu" class="fixed inset-0 z-40 glass transform translate-x-full transition-transform duration-300 md:hidden flex flex-col justify-center items-center space-y-8 opacity-0">
-        <a href="#home" class="text-3xl font-bold text-gray-700 hover:text-purple-600 mobile-link active:scale-95 transition-transform">Home</a>
-        <a href="#services" class="text-3xl font-bold text-gray-700 hover:text-purple-600 mobile-link active:scale-95 transition-transform">Services</a>
-        <a href="#pricing" class="text-3xl font-bold text-gray-700 hover:text-purple-600 mobile-link active:scale-95 transition-transform">Pricing</a>
-        <a href="#work" class="text-3xl font-bold text-gray-700 hover:text-purple-600 mobile-link active:scale-95 transition-transform">Work</a>
-        <a href="#testimonials" class="text-3xl font-bold text-gray-700 hover:text-purple-600 mobile-link active:scale-95 transition-transform">Stories</a>
-        <a href="#contact" class="text-3xl font-bold text-purple-600 mobile-link active:scale-95 transition-transform">Contact Us</a>
-        <button id="closeMenu" class="absolute top-6 right-6 neu-icon-btn neu-flat text-red-500 active:scale-90" aria-label="Close mobile menu">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-
-    <!-- Hero Section -->
-    <section id="home" class="min-h-[100dvh] flex items-center justify-center pt-24 px-4 sm:px-6 relative">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center -mt-16">
-            <div class="reveal text-center md:text-left">
-                <span class="neu-pressed px-4 py-1 rounded-full text-purple-600 text-xs font-bold uppercase tracking-widest mb-4 inline-block">
-                    Android Specialists
-                </span>
-                <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold text-gray-700 leading-tight mb-6">
-                    <span id="typingText">Soft UI.</span><br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500">Hard Code.</span>
-                </h1>
-                <p class="text-base sm:text-lg text-gray-700 mb-8 leading-relaxed max-w-md mx-auto md:mx-0 font-medium">
-                    We craft high-performance Android applications powered by modern web technologies (HTML, CSS, JS).
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                    <a href="#work" class="neu-flat px-8 py-4 text-gray-700 font-bold rounded-full hover:text-purple-600 transition flex items-center justify-center gap-2 w-full sm:w-auto">
-                        Our Projects <i class="fas fa-arrow-right text-sm"></i>
+    <main>
+        <section id="hero" class="hero-section">
+            <div class="hero-content">
+                <div class="badge">
+                    <span class="badge-dot"></span>
+                    Version 2.0 Now Live
+                </div>
+                <h1>Building the <span class="gradient-text">Future</span> of <br> Digital Experience.</h1>
+                <p>We craft premium software and mobile applications designed to elevate your productivity and
+                    lifestyle.</p>
+                <div class="hero-buttons">
+                    <a href="#apps" class="btn btn-primary">
+                        Explore Apps <i class="fa-solid fa-arrow-right"></i>
                     </a>
-                    <!-- Removed the decorative play button to avoid confusion -->
+                    <a href="#about" class="btn btn-secondary">
+                        Learn More
+                    </a>
                 </div>
-            </div>
-
-            <!-- Hero Graphic -->
-            <div class="relative reveal delay-200 hidden md:block">
-                <div class="neu-flat w-72 lg:w-80 h-[450px] lg:h-[500px] mx-auto rounded-[40px] relative flex flex-col items-center justify-center border-4 border-[#e0e5ec]">
-                    <!-- Screen -->
-                    <div class="w-[90%] h-[90%] neu-pressed rounded-[30px] relative overflow-hidden flex flex-col items-center pt-10">
-                        <div class="w-20 h-6 neu-flat rounded-b-xl absolute top-0 left-1/2 transform -translate-x-1/2"></div>
-                        
-                        <!-- App UI Mockup -->
-                        <div class="w-full px-6 mt-8 space-y-6">
-                            <div class="flex justify-between items-center">
-                                <div class="w-8 h-8 neu-flat rounded-full"></div>
-                                <div class="w-8 h-8 neu-flat rounded-full"></div>
-                            </div>
-                            <h3 class="text-gray-400 text-2xl font-bold">Sajid Tech</h3>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="h-24 neu-flat rounded-2xl flex items-center justify-center text-3xl text-gray-300">
-                                    <i class="fab fa-html5"></i>
-                                </div>
-                                <div class="h-24 neu-flat rounded-2xl flex items-center justify-center text-3xl text-gray-300">
-                                    <i class="fab fa-css3-alt"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="h-32 glass rounded-2xl border-white/20 flex items-center justify-center">
-                                <span class="text-purple-500 font-bold">Assets Folder</span>
-                            </div>
-                        </div>
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <span class="stat-number">5+</span>
+                        <span class="stat-label">Apps Live</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number">10k+</span>
+                        <span class="stat-label">Downloads</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number">4.8</span>
+                        <span class="stat-label">User Rating</span>
                     </div>
                 </div>
-                
-                <!-- Floating Elements -->
-                <div class="glass absolute top-20 -left-12 p-4 rounded-2xl animate-bounce" style="animation-duration: 3s;">
-                    <i class="fab fa-android text-3xl text-green-500"></i>
-                </div>
-                <div class="glass absolute bottom-32 -right-8 p-4 rounded-2xl animate-bounce" style="animation-duration: 4s;">
-                    <i class="fab fa-js text-3xl text-yellow-400"></i>
-                </div>
             </div>
-        </div>
-    </section>
+            <div class="hero-visual">
+                <!-- Abstract 3D-like CSS Composition -->
+                <div class="floating-card card-1">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>Fast Performance</span>
+                </div>
+                <div class="floating-card card-2">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Secure Core</span>
+                </div>
+                <div class="visual-circle"></div>
+            </div>
+        </section>
 
-    <!-- Services Section -->
-    <section id="services" class="py-16 md:py-24 px-4 sm:px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 reveal">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-700 mb-4">Our Expertise</h2>
-                <div class="w-20 h-2 neu-pressed rounded-full mx-auto"></div>
+        <!-- App Showcase Section -->
+        <section id="apps" class="apps-section">
+            <div class="section-header">
+                <h2>Our <span class="gradient-text">Applications</span></h2>
+                <p>Powerful tools designed to enhance your digital life.</p>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
-                <!-- Card 1 -->
-                <div class="neu-flat p-6 md:p-8 text-center group reveal">
-                    <div class="w-16 h-16 md:w-20 md:h-20 mx-auto neu-flat rounded-full flex items-center justify-center mb-6 group-hover:text-green-500 transition-colors">
-                        <i class="fab fa-android text-2xl md:text-3xl"></i>
+            <div class="apps-grid">
+                <!-- App Card 1 -->
+                <div class="app-card">
+                    <div class="app-icon icon-glow-1">
+                        <img src="logo.png" alt="Quick Tools Logo">
                     </div>
-                    <h3 class="text-lg md:text-xl font-bold text-gray-700 mb-3">Android Apps</h3>
-                    <p class="text-gray-700 text-base leading-relaxed font-medium">
-                        Specialized in converting web projects into fully functional, installable Android APKs.
-                    </p>
+                    <h3>Quick Tools</h3>
+                    <p class="app-desc">Everything you need. Instantly. A suite of productivity, health, and wellness
+                        tools in one place.</p>
+                    <div class="app-meta">
+                        <span><i class="fa-solid fa-star"></i> 5.0</span>
+                        <span><i class="fa-solid fa-download"></i> 1k+</span>
+                    </div>
+                    <a href="quick-tools.apk" class="btn-download" download>
+                        Download <i class="fa-solid fa-cloud-arrow-down"></i>
+                    </a>
                 </div>
 
-                <!-- Card 2 -->
-                <div class="neu-flat p-6 md:p-8 text-center group reveal delay-100">
-                    <div class="w-16 h-16 md:w-20 md:h-20 mx-auto neu-flat rounded-full flex items-center justify-center mb-6 group-hover:text-blue-500 transition-colors">
-                        <i class="fas fa-code text-2xl md:text-3xl"></i>
+                <!-- Coming Soon Card -->
+                <div class="app-card">
+                    <div class="app-icon icon-glow-neutral">
+                        <i class="fa-solid fa-hourglass-half"></i>
                     </div>
-                    <h3 class="text-lg md:text-xl font-bold text-gray-700 mb-3">Web Integration</h3>
-                    <p class="text-gray-700 text-base leading-relaxed font-medium">
-                        We utilize HTML, CSS, and JS files directly in the assets folder for offline-first performance.
-                    </p>
+                    <h3>Coming Soon...</h3>
+                    <p class="app-desc">We are working on more amazing tools. Stay tuned for future updates!</p>
+                    <div class="app-meta">
+                        <span><i class="fa-solid fa-code"></i> In Progress</span>
+                    </div>
+                    <button class="btn-download" disabled style="opacity: 0.6; cursor: not-allowed;">
+                        Stay Tuned
+                    </button>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Stats Section (Glassmorphic Strip) -->
-    <div class="glass py-12 my-8 md:my-12 border-y border-white/30">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div class="reveal">
-                <h4 class="text-3xl md:text-4xl font-bold text-purple-600" data-count="10">0+</h4>
-                <p class="text-gray-700 font-bold mt-1 text-base md:text-lg">Apps Created</p>
+        <!-- About / Features Section -->
+        <section id="about" class="features-section">
+            <div class="section-header">
+                <h2>Why Choose <span class="gradient-text">Us?</span></h2>
             </div>
-            <div class="reveal delay-100">
-                <h4 class="text-3xl md:text-4xl font-bold text-blue-500" data-count="100">0%</h4>
-                <p class="text-gray-700 font-bold mt-1 text-base md:text-lg">Satisfaction</p>
+            <div class="features-container">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-code"></i></div>
+                    <h4>Clean Code</h4>
+                    <p>Optimized for speed and maintainability.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <h4>Modern Design</h4>
+                    <p>Interfaces that look as good as they feel.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-headset"></i></div>
+                    <h4>24/7 Support</h4>
+                    <p>We are always here to help you out.</p>
+                </div>
             </div>
-            <div class="reveal delay-200">
-                <h4 class="text-3xl md:text-4xl font-bold text-pink-500">Super</h4>
-                <p class="text-gray-700 font-bold mt-1 text-base md:text-lg">Fast Speed</p>
-            </div>
-            <div class="reveal delay-300">
-                <h4 class="text-3xl md:text-4xl font-bold text-indigo-500">Offline</h4>
-                <p class="text-gray-700 font-bold mt-1 text-base md:text-lg">Ready</p>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="py-16 md:py-24 px-4 sm:px-6">
-        <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-12 reveal">
-                <span class="neu-pressed px-4 py-1 rounded-full text-purple-600 text-xs font-bold uppercase tracking-widest mb-4 inline-block">
-                    Web to APK
-                </span>
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-700 mb-4">Simple Pricing</h2>
-                <p class="text-gray-700 max-w-2xl mx-auto text-base font-medium">Turn your website into a powerful Android App. Pay in BDT (৳).</p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8 items-center pricing-container">
-                <!-- Offer 1: Basic Plan -->
-                <div id="basicCard" class="neu-flat p-8 rounded-[30px] relative reveal group border border-transparent">
-                    <h3 id="cardTitle" class="text-xl font-bold text-gray-700 mb-2">Basic</h3>
-                    <p id="cardDescription" class="text-gray-600 text-base mb-6 font-medium">Quick link conversion.</p>
-                    <div class="flex items-baseline mb-6">
-                        <span id="cardPrice" class="text-4xl font-extrabold text-gray-700">৳249</span>
-                    </div>
-                    
-                    <ul class="space-y-4 mb-8 text-gray-700 text-base">
-                        <li class="flex items-center gap-3 font-medium">
-                            <i class="fas fa-check text-green-500"></i> Website Link to APK File
-                        </li>
-                        <li class="flex items-center gap-3 text-gray-500 opacity-70" id="feature1">
-                            <i class="fas fa-times"></i> 
-                            <span>Custom App Logo</span>
-                        </li>
-                        <li class="flex items-center gap-3 text-gray-500 opacity-70" id="feature2">
-                            <i class="fas fa-times"></i> 
-                            <span>Pull to Refresh</span>
-                        </li>
-                        <li class="flex items-center gap-3 text-gray-500 opacity-70" id="feature3">
-                            <i class="fas fa-times"></i> 
-                            <span>Offline Detection</span>
-                        </li>
+        <!-- Footer -->
+        <footer id="contact">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>Sajid Tech.</h3>
+                    <p>Innovating the future, one line of code at a time.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#apps">Apps</a></li>
+                        <li><a href="#about">About</a></li>
                     </ul>
-                    
-                    <a id="cardButton" href="#contact" class="block w-full neu-flat py-4 rounded-full text-gray-700 font-bold text-center text-base uppercase tracking-wider active:scale-95 transition-transform hover:bg-gray-200">
-                        Select Basic
-                    </a>
                 </div>
-
-                <!-- Offer 2: Premium Plan -->
-                <div id="premiumCard" class="premium-card-enhanced p-8 rounded-[30px] relative scale-105 z-10 reveal">
-                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <span class="bg-purple-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">Recommended</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-purple-600 mb-2">Premium</h3>
-                    <p class="text-gray-600 text-base mb-6 font-medium">Professional brand identity.</p>
-                    <div class="flex items-baseline mb-6">
-                        <span class="text-4xl font-extrabold text-gray-700">৳299</span>
-                        <span class="ml-2 text-sm text-purple-500 font-bold bg-purple-100 px-2 py-1 rounded-lg">Only ৳50 more!</span>
-                    </div>
-                    
-                    <ul class="space-y-4 mb-8 text-gray-700 text-base">
-                        <li class="flex items-center gap-3 font-medium">
-                            <i class="fas fa-check text-green-500"></i> Website Link to APK File
-                        </li>
-                        <li class="flex items-center gap-3 font-medium">
-                            <i class="fas fa-check text-green-500"></i> Custom App Logo
-                        </li>
-                        <li class="flex items-center gap-3 font-medium">
-                            <i class="fas fa-check text-green-500"></i> Pull-to-Refresh
-                        </li>
-                        <li class="flex items-center gap-3 font-medium">
-                            <i class="fas fa-check text-green-500"></i> Offline Detection Page
-                        </li>
-                        <li class="flex items-center gap-3 font-medium">
-                            <i class="fas fa-check text-green-500"></i> Loading Progress Bar
-                        </li>
-                    </ul>
-                    
-                    <a href="#contact" class="block w-full premium-btn-enhanced py-4 text-center text-sm uppercase tracking-wider">
-                        Choose Premium
-                    </a>
+                <div class="footer-social">
+                    <a href="#"><i class="fa-brands fa-github"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin"></i></a>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Portfolio Section -->
-    <section id="work" class="py-16 md:py-24 px-4 sm:px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 reveal">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-700 mb-4">Recent Works</h2>
-                <p class="text-gray-700 text-base font-medium">Featured Android applications.</p>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Sajid Tech Solutions. All rights reserved.</p>
             </div>
+        </footer>
 
-            <div class="grid md:grid-cols-2 gap-8 md:gap-10">
-                <!-- Project 1 -->
-                <div class="neu-flat p-4 rounded-3xl group cursor-pointer reveal active:scale-[0.99] transition-transform">
-                    <div class="h-56 sm:h-64 w-full rounded-2xl overflow-hidden relative">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-green-600 to-emerald-400 opacity-80 group-hover:opacity-90 transition duration-500"></div>
-                        <!-- Glass Card Overlay -->
-                        <div class="absolute bottom-4 left-4 right-4 glass p-4 rounded-xl transform translate-y-2 group-hover:translate-y-0 transition duration-300">
-                            <h4 class="text-gray-800 font-bold text-lg">My Ramadan Planner</h4>
-                            <p class="text-gray-700 text-base font-semibold">Android Utility App</p>
-                        </div>
-                        <i class="fas fa-moon absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-6xl opacity-20 group-hover:scale-110 transition duration-500"></i>
-                    </div>
-                </div>
-
-                <!-- Project 2 -->
-                <div class="neu-flat p-4 rounded-3xl group cursor-pointer reveal delay-100 active:scale-[0.99] transition-transform">
-                    <div class="h-56 sm:h-64 w-full rounded-2xl overflow-hidden relative">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-gray-700 to-purple-900 opacity-90 group-hover:opacity-100 transition duration-500"></div>
-                        <div class="absolute bottom-4 left-4 right-4 glass p-4 rounded-xl transform translate-y-2 group-hover:translate-y-0 transition duration-300">
-                            <h4 class="text-gray-800 font-bold text-lg">Dark Psychology</h4>
-                            <p class="text-gray-700 text-base font-semibold">Educational App</p>
-                        </div>
-                        <i class="fas fa-user-secret absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-6xl opacity-20 group-hover:scale-110 transition duration-500"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works / Process Section -->
-    <section id="process" class="py-16 md:py-24 px-4 sm:px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <span class="neu-pressed px-4 py-1 rounded-full text-purple-600 text-xs font-bold uppercase tracking-widest mb-4 inline-block">
-                    Simple Process
-                </span>
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-700 mb-4">How It Works</h2>
-                <p class="text-gray-700 max-w-2xl mx-auto text-base font-medium">From your website to a fully functional Android app in just a few simple steps.</p>
-            </div>
-
-            <div class="process-container relative">
-                <div class="grid md:grid-cols-3 gap-8 md:gap-12 max-w-5xl mx-auto relative z-10">
-                    <!-- Step 1 -->
-                    <div class="process-step text-center reveal">
-                        <div class="process-step-number w-24 h-24 mx-auto neu-flat rounded-full flex flex-col items-center justify-center mb-6">
-                            <i class="fas fa-paper-plane process-step-icon text-purple-600"></i>
-                            <span class="text-purple-600 text-2xl font-bold">01</span>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-bold text-gray-700 mb-4">Share Your Website</h3>
-                        <p class="text-gray-700 text-base md:text-lg leading-relaxed font-medium">Send us your website link or HTML files. We'll analyze your project structure and requirements.</p>
-                        <div class="mt-4 flex items-center justify-center gap-2 text-purple-600 text-sm font-semibold">
-                            <i class="fas fa-clock"></i>
-                            <span>Instant Analysis</span>
-                        </div>
-                    </div>
-
-                    <!-- Step 2 -->
-                    <div class="process-step text-center reveal delay-100">
-                        <div class="process-step-number w-24 h-24 mx-auto neu-flat rounded-full flex flex-col items-center justify-center mb-6">
-                            <i class="fas fa-code process-step-icon text-blue-600"></i>
-                            <span class="text-blue-600 text-2xl font-bold">02</span>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-bold text-gray-700 mb-4">We Build Your App</h3>
-                        <p class="text-gray-700 text-base md:text-lg leading-relaxed font-medium">Our team converts your web project into a native Android APK with all features intact and optimized.</p>
-                        <div class="mt-4 flex items-center justify-center gap-2 text-blue-600 text-sm font-semibold">
-                            <i class="fas fa-tools"></i>
-                            <span>24-48 Hours</span>
-                        </div>
-                    </div>
-
-                    <!-- Step 3 -->
-                    <div class="process-step text-center reveal delay-200">
-                        <div class="process-step-number w-24 h-24 mx-auto neu-flat rounded-full flex flex-col items-center justify-center mb-6">
-                            <i class="fas fa-download process-step-icon text-green-600"></i>
-                            <span class="text-green-600 text-2xl font-bold">03</span>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-bold text-gray-700 mb-4">Get Your APK</h3>
-                        <p class="text-gray-700 text-base md:text-lg leading-relaxed font-medium">Receive your installable Android app file ready to distribute or publish on Google Play Store.</p>
-                        <div class="mt-4 flex items-center justify-center gap-2 text-green-600 text-sm font-semibold">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Ready to Use</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Call to Action -->
-            <div class="text-center mt-16 reveal delay-300">
-                <a href="#contact" class="neu-flat px-8 py-4 text-purple-600 font-bold rounded-full hover:text-purple-700 transition inline-flex items-center gap-2">
-                    Start Your Project <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Client Stories (Testimonials) -->
-    <section id="testimonials" class="py-16 md:py-24 px-4 sm:px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 reveal">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-700 mb-4">Client Stories</h2>
-                <p class="text-gray-700 max-w-2xl mx-auto text-base font-medium">Hear from the people who trusted us with their mobile vision.</p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Review 1 -->
-                <div class="neu-flat p-8 relative reveal">
-                    <div class="absolute -top-4 left-8 w-10 h-10 neu-pressed rounded-full flex items-center justify-center text-purple-500">
-                        <i class="fas fa-quote-left text-sm"></i>
-                    </div>
-                    <p class="text-gray-700 italic mb-6 mt-2 leading-relaxed text-base font-medium">
-                        "Sajid Tech took our basic HTML project and turned it into a flawless Android app. The asset-based loading makes it incredibly fast even offline."
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 neu-pressed rounded-full flex items-center justify-center text-gray-400 overflow-hidden">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-gray-700">Ahmed K.</h4>
-                            <p class="text-xs text-purple-500 font-bold uppercase">Ramadan Planner User</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Review 2 -->
-                <div class="neu-flat p-8 relative reveal delay-100">
-                    <div class="absolute -top-4 left-8 w-10 h-10 neu-pressed rounded-full flex items-center justify-center text-blue-500">
-                        <i class="fas fa-quote-left text-sm"></i>
-                    </div>
-                    <p class="text-gray-700 italic mb-6 mt-2 leading-relaxed text-base font-medium">
-                        "The Neumorphic design they implemented is stunning. It really stands out in the Play Store. Highly recommended for unique UI."
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 neu-pressed rounded-full flex items-center justify-center text-gray-400 overflow-hidden">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-gray-700">Sarah Jenkins</h4>
-                            <p class="text-xs text-blue-500 font-bold uppercase">Startup Founder</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-16 md:py-24 px-4 sm:px-6 relative">
-        <div class="max-w-4xl mx-auto">
-            <div class="neu-flat p-6 md:p-12 rounded-[30px] md:rounded-[40px] reveal">
-                <div class="text-center mb-8 md:mb-10">
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-700">Start Your Project</h2>
-                    <p class="text-gray-700 mt-2 text-base md:text-lg font-medium">Ready to build your next Android app?</p>
-                </div>
-
-                <form class="space-y-6" id="contactForm">
-                    <div class="grid md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-gray-700 text-base font-bold mb-2 ml-2">Name</label>
-                        <input type="text" required minlength="2" name="name" class="form-input neu-pressed w-full px-6 py-4 rounded-xl text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-all" placeholder="Your Name" aria-label="Your name">
-                        <span class="error-message" id="nameError">Name must be at least 2 characters</span>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-base font-bold mb-2 ml-2">WhatsApp Number</label>
-                        <input type="tel" required pattern="[+]?[0-9\s\-]+" name="phone" class="form-input neu-pressed w-full px-6 py-4 rounded-xl text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-all" placeholder="+880 1XXX-XXXXXX" aria-label="Your WhatsApp number">
-                        <span class="error-message" id="phoneError">Please enter a valid phone number</span>
-                    </div>
-                    </div>
-
-                    <!-- New Website Link Input -->
-                    <div>
-                        <label class="block text-gray-700 text-base font-bold mb-2 ml-2">Website Link <span class="text-gray-500 font-normal text-sm">(optional)</span></label>
-                        <div class="relative">
-                            <input type="text" name="website" class="form-input neu-pressed w-full pl-12 pr-6 py-4 rounded-xl text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-all" placeholder="https://yourwebsite.com" aria-label="Website URL to convert (optional)">
-                            <i class="fas fa-link absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 text-base font-bold mb-2 ml-2">Message</label>
-                        <textarea rows="4" required minlength="10" name="message" class="form-input neu-pressed w-full px-6 py-4 rounded-xl text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-all" placeholder="Describe your app idea..." aria-label="Project description"></textarea>
-                        <span class="error-message" id="messageError">Message must be at least 10 characters</span>
-                    </div>
-
-                    <div class="text-center pt-4">
-                        <button type="submit" id="submitBtn" class="neu-flat px-10 py-4 rounded-full text-purple-600 font-bold active:scale-95 transition-transform duration-200 w-full sm:w-auto">
-                            <span id="submitText">Send to Sajid Tech <i class="fas fa-paper-plane ml-2"></i></span>
-                            <span id="submitLoading" style="display: none;"><span class="spinner"></span>Sending...</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- Success Modal -->
-    <div id="successModal" class="fixed inset-0 z-[60] flex items-center justify-center hidden-modal modal-overlay">
-        <div class="absolute inset-0 glass bg-white/30 backdrop-blur-sm"></div> <!-- Overlay -->
-        <div class="relative neu-flat p-8 md:p-10 max-w-sm mx-4 text-center modal-content border-2 border-white/50">
-            <div class="w-20 h-20 neu-pressed rounded-full flex items-center justify-center mx-auto mb-6 text-green-500 text-4xl">
-                <i class="fas fa-check"></i>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-700 mb-2">Message Sent!</h3>
-            <p class="text-gray-700 mb-8 text-base font-medium">Thanks for reaching out. We will analyze your requirements and get back to you shortly.</p>
-            <button onclick="closeModal()" class="neu-flat px-8 py-3 rounded-full text-purple-600 font-bold hover:text-purple-700 text-sm uppercase tracking-wider active:scale-95 transition-transform">
-                Awesome
-            </button>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="pb-12 pt-6 px-6">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-2">
-                <i class="fa-brands fa-android text-purple-600 text-xl"></i>
-                <span class="font-bold text-gray-600">Sajid Tech Solutions</span>
-            </div>
-            
-            <div class="flex gap-4">
-                <a href="#" class="neu-icon-btn neu-flat w-10 h-10 text-sm"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="neu-icon-btn neu-flat w-10 h-10 text-sm"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#" class="neu-icon-btn neu-flat w-10 h-10 text-sm"><i class="fab fa-dribbble"></i></a>
-                <a href="#" class="neu-icon-btn neu-flat w-10 h-10 text-sm"><i class="fab fa-github"></i></a>
-            </div>
-            
-            <div class="text-gray-700 text-base font-medium">
-                &copy; <span id="year"></span> Sajid Tech Solutions. All rights reserved.
-            </div>
-        </div>
-    </footer>
-
-    <!-- Back to Top Button -->
-    <button id="backToTop" onclick="scrollToTop()" class="fixed bottom-12 right-6 z-40 neu-icon-btn neu-flat w-12 h-12 text-purple-600 hidden-btn active:scale-90" aria-label="Scroll to top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
-    <script>
-        // Dynamic Year
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // Scroll Progress Bar
-        window.addEventListener('scroll', function() {
-            const scrollTop = window.pageYOffset;
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const scrollPercent = (scrollTop / docHeight) * 100;
-            document.getElementById('scrollProgress').style.transform = `scaleX(${scrollPercent / 100})`;
-        });
-
-        // Typing Animation
-        const typingText = document.getElementById('typingText');
-        const texts = ['Soft UI.', 'Modern Design.', 'Clean Code.', 'Fast Performance.'];
-        let textIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-
-        function typeText() {
-            const currentText = texts[textIndex];
-            
-            if (isDeleting) {
-                typingText.textContent = currentText.substring(0, charIndex - 1);
-                charIndex--;
-            } else {
-                typingText.textContent = currentText.substring(0, charIndex + 1);
-                charIndex++;
-            }
-
-            if (!isDeleting && charIndex === currentText.length) {
-                setTimeout(() => isDeleting = true, 2000);
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                textIndex = (textIndex + 1) % texts.length;
-            }
-
-            const speed = isDeleting ? 50 : 100;
-            setTimeout(typeText, speed);
-        }
-        typeText();
-
-        // Form Validation
-        const form = document.getElementById('contactForm');
-        const inputs = form.querySelectorAll('.form-input');
-        
-        inputs.forEach(input => {
-            input.addEventListener('blur', validateField);
-            input.addEventListener('input', function() {
-                if (this.classList.contains('error')) {
-                    validateField.call(this);
-                }
-            });
-        });
-
-        function validateField() {
-            const field = this;
-            const fieldName = field.name || field.getAttribute('name');
-            const errorElement = document.getElementById(fieldName + 'Error');
-            let isValid = true;
-
-            // Remove previous states
-            field.classList.remove('error', 'success');
-            if (errorElement) errorElement.classList.remove('show');
-
-            // Validation rules
-            if (field.hasAttribute('required') && !field.value.trim()) {
-                isValid = false;
-            } else if (fieldName === 'name' && field.value.length < 2) {
-                isValid = false;
-            } else if (fieldName === 'phone' && !/^[+]?[0-9\s\-]{10,}$/.test(field.value)) {
-                isValid = false;
-            } else if (fieldName === 'website') {
-                // Website is optional - always valid, no validation needed
-                // User can enter any value or leave it empty
-                isValid = true;
-            } else if (fieldName === 'message' && field.value.length < 10) {
-                isValid = false;
-            }
-
-            // Only show error if field is required
-            if (!isValid) {
-                if (field.hasAttribute('required')) {
-                    field.classList.add('error');
-                    if (errorElement) errorElement.classList.add('show');
-                }
-            } else if (field.value) {
-                field.classList.remove('error');
-                if (errorElement) errorElement.classList.remove('show');
-                field.classList.add('success');
-            } else {
-                // Clear error state if field is empty and not required
-                field.classList.remove('error', 'success');
-                if (errorElement) errorElement.classList.remove('show');
-            }
-
-            return isValid;
-        }
-
-        // Enhanced Form Submission
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Validate all fields (only required fields will block submission)
-            let isFormValid = true;
-            inputs.forEach(input => {
-                // Skip website field completely - it's optional
-                if (input.name === 'website') {
-                    return; // Skip validation for website field
-                }
-                // Only validate required fields or fields that have values
-                if (input.hasAttribute('required') || input.value.trim()) {
-                    if (!validateField.call(input)) {
-                        isFormValid = false;
-                    }
-                }
-            });
-
-            if (isFormValid) {
-                // Show loading state
-                const submitBtn = document.getElementById('submitBtn');
-                const submitText = document.getElementById('submitText');
-                const submitLoading = document.getElementById('submitLoading');
-                
-                submitText.style.display = 'none';
-                submitLoading.style.display = 'inline';
-                submitBtn.disabled = true;
-
-                // Get form data
-                const formData = {
-                    name: form.elements['name'].value,
-                    whatsapp: form.elements['phone'].value,
-                    website: form.elements['website'].value,
-                    message: form.elements['message'].value,
-                    timestamp: new Date()
-                };
-
-                // Send data to Firestore
-                try {
-                    await addDoc(collection(db, "contactSubmissions"), formData);
-                    showModal(); // Show success modal
-                    form.reset(); // Clear form fields
-                } catch (e) {
-                    console.error("Error adding document: ", e);
-                    alert("There was an error sending your message. Please try again.");
-                } finally {
-                    submitText.style.display = 'inline';
-                    submitLoading.style.display = 'none';
-                    submitBtn.disabled = false;
-                }
-            } else {
-                // Scroll to first error
-                const firstError = form.querySelector('.form-input.error');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    firstError.focus();
-                }
-            }
-        });
-
-        // Navbar Scroll Effect
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', function() {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Active Navigation Link on Scroll
-        const sections = document.querySelectorAll('section[id]');
-        const navLinks = document.querySelectorAll('.nav-link');
-
-        function updateActiveNav() {
-            let current = '';
-            const scrollY = window.pageYOffset;
-            const offset = 150; // Offset for fixed navbar
-
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop - offset;
-                const sectionHeight = section.offsetHeight;
-                const sectionId = section.getAttribute('id');
-
-                if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
-                    current = sectionId;
-                }
-            });
-
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${current}`) {
-                    link.classList.add('active');
-                }
-            });
-        }
-
-        // Animated Counter for Stats
-        function animateCounter(element, target, duration = 2000) {
-            let start = 0;
-            const increment = target / (duration / 16);
-            const timer = setInterval(() => {
-                start += increment;
-                if (start >= target) {
-                    element.textContent = target + (target === 100 ? '%' : '+');
-                    clearInterval(timer);
-                } else {
-                    element.textContent = Math.floor(start) + (target === 100 ? '%' : '+');
-                }
-            }, 16);
-        }
-
-        function initCounters() {
-            const counters = document.querySelectorAll('[data-count]');
-            counters.forEach(counter => {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting && !counter.classList.contains('counted')) {
-                            const target = parseInt(counter.getAttribute('data-count'));
-                            counter.classList.add('counted');
-                            animateCounter(counter, target);
-                        }
-                    });
-                }, { threshold: 0.5 });
-                observer.observe(counter);
-            });
-        }
-
-        // Scroll Reveal Animation
-        function reveal() {
-            var reveals = document.querySelectorAll(".reveal");
-            for (var i = 0; i < reveals.length; i++) {
-                var windowHeight = window.innerHeight;
-                var elementTop = reveals[i].getBoundingClientRect().top;
-                var elementVisible = 100;
-                if (elementTop < windowHeight - elementVisible) {
-                    reveals[i].classList.add("active");
-                }
-            }
-            
-            // Show/Hide Back to Top
-            const backToTopBtn = document.getElementById('backToTop');
-            if (window.scrollY > 300) {
-                backToTopBtn.classList.remove('hidden-btn');
-                backToTopBtn.classList.add('visible-btn');
-            } else {
-                backToTopBtn.classList.remove('visible-btn');
-                backToTopBtn.classList.add('hidden-btn');
-            }
-
-            // Update active navigation
-            updateActiveNav();
-        }
-        window.addEventListener("scroll", reveal);
-        reveal();
-        
-        // Initialize counters
-        initCounters(); 
-
-
-        // Scroll to Top
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            // Fallback
-            document.body.scrollTop = 0; 
-            document.documentElement.scrollTop = 0;
-        }
-
-        // Smooth Scroll with Offset for Fixed Navbar
-        const navbarHeight = 80; // Approximate navbar height
-
-        // Modal Logic
-        function showModal() {
-            const modal = document.getElementById('successModal');
-            modal.classList.remove('hidden-modal');
-            modal.classList.add('visible-modal');
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('successModal');
-            modal.classList.remove('visible-modal');
-            modal.classList.add('hidden-modal');
-            
-            // Optional: Clear form
-            document.getElementById('contactForm').reset();
-        }
-
-        // Mobile Menu Toggle
-        const menuBtn = document.getElementById('menuBtn');
-        const closeMenu = document.getElementById('closeMenu');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const mobileLinks = document.querySelectorAll('.mobile-link');
-
-        function toggleMenu() {
-            const isClosed = mobileMenu.classList.contains('translate-x-full');
-            const menuBtn = document.getElementById('menuBtn');
-            if (isClosed) {
-                mobileMenu.classList.remove('translate-x-full', 'opacity-0');
-                document.body.style.overflow = 'hidden';
-                menuBtn.setAttribute('aria-expanded', 'true');
-            } else {
-                mobileMenu.classList.add('translate-x-full', 'opacity-0');
-                document.body.style.overflow = 'auto';
-                menuBtn.setAttribute('aria-expanded', 'false');
-            }
-        }
-
-        menuBtn.addEventListener('click', toggleMenu);
-        closeMenu.addEventListener('click', toggleMenu);
-
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', toggleMenu);
-        });
-
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const target = document.querySelector(targetId);
-                if(target) {
-                    const targetPosition = target.offsetTop - navbarHeight;
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-    </script>
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyACoeRx2OI5iUMqTfN6JxAKvF2W60ryZZI",
-            authDomain: "sajid-tech.firebaseapp.com",
-            projectId: "sajid-tech",
-            storageBucket: "sajid-tech.firebasestorage.app",
-            messagingSenderId: "20807384664",
-            appId: "1:20807384664:web:89062abbb525ef5f89142d",
-            measurementId: "G-38Q9055HL8"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
-    </script>
+        <script src="script.js"></script>
 </body>
+
 </html>
