@@ -63,7 +63,106 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         observer.observe(el);
     });
+
+    // Initialize Interactive Features
+    initCustomCursor();
+    initTiltEffect();
+    initParallax();
 });
+
+function initCustomCursor() {
+    const cursorDot = document.querySelector('.cursor-dot');
+    const cursorOutline = document.querySelector('.cursor-outline');
+
+    // Only enable on non-touch devices
+    if (window.matchMedia("(pointer: fine)").matches) {
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            // Dot follows instantly
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            // Outline follows with slight delay (animation handled by CSS transition or simple keyframe, 
+            // but for smoother effect we can use requestAnimationFrame or simple animate)
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // Add hover effect for links and buttons
+        const interactiveElements = document.querySelectorAll('a, button, .app-card');
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorOutline.style.width = '60px';
+                cursorOutline.style.height = '60px';
+                cursorOutline.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorOutline.style.width = '40px';
+                cursorOutline.style.height = '40px';
+                cursorOutline.style.backgroundColor = 'transparent';
+            });
+        });
+    }
+}
+
+function initTiltEffect() {
+    const cards = document.querySelectorAll('.app-card');
+
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const rotateX = ((y - centerY) / centerY) * -10; // Max 10deg rotation
+            const rotateY = ((x - centerX) / centerX) * 10;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+        });
+    });
+}
+
+function initParallax() {
+    const globes = document.querySelectorAll('.globe');
+
+    window.addEventListener('mousemove', (e) => {
+        const x = (window.innerWidth - e.pageX * 2) / 100;
+        const y = (window.innerHeight - e.pageY * 2) / 100;
+
+        globes.forEach((globe, index) => {
+            const speed = (index + 1) * 2;
+            const xOffset = x * speed;
+            const yOffset = y * speed;
+
+            // Keep the float animation but add mouse offset
+            // We can't easily combine keyframes with JS transform without a wrapper or complex logic,
+            // so we'll apply it to the container or use a css variable if possible.
+            // Simpler approach: Apply transform to the globe directly, it might override the float animation.
+            // Better: The globes have 'animation: float'. Transform will override it.
+            // Fix: Wrap globes in a container or use translate3d addition. 
+            // Since we want to keep it simple, let's just move the background container slightly.
+        });
+    });
+
+    // Alternative Parallax: Move the .background-globes container
+    const bgContainer = document.querySelector('.background-globes');
+    window.addEventListener('mousemove', (e) => {
+        const x = (window.innerWidth - e.pageX * 2) / 50;
+        const y = (window.innerHeight - e.pageY * 2) / 50;
+        bgContainer.style.transform = `translate(${x}px, ${y}px)`;
+    });
+}
 
 function styleMobileMenu(nav) {
     nav.style.flexDirection = 'column';

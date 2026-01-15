@@ -59,6 +59,51 @@ body {
     animation-delay: 0s;
 }
 
+/* Custom Cursor */
+.cursor-dot,
+.cursor-outline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 9999;
+    pointer-events: none;
+    display: none;
+    /* Hidden by default, shown via JS on desktop */
+}
+
+.cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+}
+
+.cursor-outline {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--primary-color);
+    transition: width 0.2s, height 0.2s, background-color 0.2s;
+}
+
+body:hover .cursor-dot,
+body:hover .cursor-outline {
+    display: block;
+}
+
+/* Mobile optimizations */
+@media (pointer: coarse) {
+
+    .cursor-dot,
+    .cursor-outline {
+        display: none !important;
+    }
+
+    .app-card:active {
+        transform: scale(0.98);
+    }
+}
+
 .globe-2 {
     bottom: -10%;
     right: -10%;
@@ -184,7 +229,7 @@ header {
     align-items: center;
     justify-content: space-between;
     padding: 0 10%;
-    padding-top: 80px;
+    padding-top: 140px;
     /* Offset for fixed header */
 }
 
@@ -545,6 +590,8 @@ h1 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
 }
 
 .app-card:hover {
