@@ -65,51 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initialize Interactive Features
-    initCustomCursor();
+
     initTiltEffect();
     initParallax();
 });
 
-function initCustomCursor() {
-    const cursorDot = document.querySelector('.cursor-dot');
-    const cursorOutline = document.querySelector('.cursor-outline');
 
-    // Only enable on non-touch devices
-    if (window.matchMedia("(pointer: fine)").matches) {
-        window.addEventListener('mousemove', (e) => {
-            const posX = e.clientX;
-            const posY = e.clientY;
-
-            // Dot follows instantly
-            cursorDot.style.left = `${posX}px`;
-            cursorDot.style.top = `${posY}px`;
-
-            // Outline follows with slight delay (animation handled by CSS transition or simple keyframe, 
-            // but for smoother effect we can use requestAnimationFrame or simple animate)
-            cursorOutline.animate({
-                left: `${posX}px`,
-                top: `${posY}px`
-            }, { duration: 500, fill: "forwards" });
-        });
-
-        // Add hover effect for links and buttons
-        const interactiveElements = document.querySelectorAll('a, button, .app-card');
-        interactiveElements.forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                cursorOutline.style.width = '60px';
-                cursorOutline.style.height = '60px';
-                cursorOutline.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-            });
-            el.addEventListener('mouseleave', () => {
-                cursorOutline.style.width = '40px';
-                cursorOutline.style.height = '40px';
-                cursorOutline.style.backgroundColor = 'transparent';
-            });
-        });
-    }
-}
 
 function initTiltEffect() {
+    // Only enable on non-touch devices
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+
     const cards = document.querySelectorAll('.app-card');
 
     cards.forEach(card => {
@@ -134,6 +100,9 @@ function initTiltEffect() {
 }
 
 function initParallax() {
+    // Only enable on non-touch devices
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+
     const globes = document.querySelectorAll('.globe');
 
     window.addEventListener('mousemove', (e) => {
