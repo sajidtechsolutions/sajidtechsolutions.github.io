@@ -129,12 +129,25 @@ body {
 }
 
 .gradient-text {
-    background: linear-gradient(135deg, #fff 0%, var(--primary) 50%, var(--accent) 100%);
+    background: linear-gradient(to right,
+            #fff 0%,
+            var(--primary) 40%,
+            var(--accent) 50%,
+            var(--primary) 60%,
+            #fff 100%);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    animation: text-shimmer 5s linear infinite;
     position: relative;
     display: inline-block;
+}
+
+@keyframes text-shimmer {
+    to {
+        background-position: 200% center;
+    }
 }
 
 .glow-text {
@@ -662,62 +675,158 @@ footer {
 }
 
 /* Responsive */
+/* Super Responsive Refinements */
+
+/* Fluid Typography */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+    /* Offset for sticky header */
+}
+
 @media (max-width: 1024px) {
-    .hero-title {
-        font-size: 3.5rem;
+    .container {
+        padding: 0 30px;
     }
 
-    .features-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .hero-title {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+    }
+
+    .section {
+        padding: 80px 0;
     }
 }
 
 @media (max-width: 768px) {
+
+    /* Navbar Mobile Polish */
     .navbar {
         width: 100%;
         top: 0;
         border-radius: 0;
+        height: 60px;
+        padding: 0 20px;
         background: rgba(2, 6, 23, 0.95);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .nav-links {
-        display: none;
-        /* Mobile menu to be handled by JS */
-        flex-direction: column;
-        position: absolute;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        background: var(--bg-dark);
-        padding: 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-links.active {
-        display: flex;
+    .logo {
+        font-size: 1.3rem;
     }
 
     .mobile-toggle {
         display: block;
+        padding: 10px;
+        /* Larger touch target */
     }
 
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background: rgba(2, 6, 23, 0.98);
+        backdrop-filter: blur(20px);
+        padding: 30px;
+        gap: 25px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: all 0.4s var(--ease-out-quart);
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .nav-link {
+        font-size: 1.2rem;
+        display: block;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    /* Hero Mobile */
     .hero {
-        padding-top: 140px;
+        padding-top: 100px;
+        padding-bottom: 40px;
+        min-height: auto;
     }
 
     .hero-title {
-        font-size: 2.5rem;
+        font-size: clamp(2.2rem, 8vw, 3rem);
+        margin-bottom: 15px;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 30px;
+        padding: 0 10px;
     }
 
     .hero-actions {
         flex-direction: column;
+        gap: 15px;
+        padding: 0 20px;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 16px;
+    }
+
+    /* Sections Mobile */
+    .section {
+        padding: 60px 0;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
+    }
+
+    .section-title {
+        font-size: 2.2rem;
+    }
+
+    .apps-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .app-card {
+        padding: 25px;
     }
 
     .features-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 
+    .feature-box {
+        padding: 30px 20px;
+    }
+
+    /* Footer Mobile */
     .footer-content {
         flex-direction: column;
+        gap: 40px;
+        text-align: center;
+    }
+
+    .footer-brand {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .footer-brand div {
+        justify-content: center;
     }
 }
