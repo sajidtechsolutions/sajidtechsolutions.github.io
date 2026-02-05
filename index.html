@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sajid Tech Solutions | Premium Apps & Software</title>
+    <meta name="description"
+        content="Discover premium, offline-first AI tools and productivity apps from Sajid Tech Solutions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#020617">
+</head>
+
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar glass-panel">
+        <a href="#" class="logo">
+            <i class="fa-solid fa-cube"></i> Sajid Tech<span style="color:var(--accent)">.</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#hero" class="nav-link active">Home</a></li>
+            <li><a href="#apps" class="nav-link">Our Apps</a></li>
+            <li><a href="#why-us" class="nav-link">Philosophy</a></li>
+            <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="mobile-toggle">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fa-solid fa-bolt"></i> Fast & Native
+            </div>
+            <h1 class="hero-title">
+                Redefining the <br>
+                <span class="gradient-text">Digital Experience</span>
+            </h1>
+            <p class="hero-subtitle">
+                We build premium, offline-first software solutions designed for speed, privacy, and productivity.
+                Elevate your workflow today.
+            </p>
+            <div class="hero-actions">
+                <a href="#apps" class="btn btn-primary">
+                    <i class="fa-brands fa-google-play"></i> Browse Apps
+                </a>
+                <a href="#why-us" class="btn btn-glass">
+                    Learn More <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Apps Section -->
+    <section id="apps" class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Our Apps</span>
+                <h2 class="section-title">Powerful Tools</h2>
+                <p class="section-desc">Designed to be completely effective offline, privacy-focused, and incredibly
+                    fast.</p>
+            </div>
+
+            <div class="apps-grid">
+                <!-- App 1: Quick Tools -->
+                <article class="app-card glass-panel" data-tilt>
+                    <div class="app-icon-wrapper">
+                        <img src="logo.png" alt="Quick Tools Logo" class="app-icon"
+                            onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');">
+                        <div class="app-icon-placeholder hidden">
+                            <i class="fa-solid fa-toolbox"></i>
+                        </div>
+                    </div>
+                    <h3 class="app-title">Quick Tools</h3>
+                    <p class="app-description">
+                        The ultimate utility suite. Access offline AI chat, unit branding, PDF tools, and more without
+                        needing an internet connection. Privacy first, always.
+                    </p>
+                    <div class="app-features">
+                        <span class="feature-tag">Offline AI</span>
+                        <span class="feature-tag">Utilities</span>
+                        <span class="feature-tag">Privacy</span>
+                    </div>
+                    <div class="app-footer">
+                        <a href="quick-tools.apk" class="btn btn-primary btn-block" download>
+                            Download APK <i class="fa-solid fa-download"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- App 2: Ramadan Planner -->
+                <article class="app-card glass-panel" data-tilt>
+                    <div class="app-icon-wrapper">
+                        <!-- Placeholder since we might not have a dedicated icon file for this yet, using FontAwesome fallback style -->
+                        <div class="app-icon-placeholder"
+                            style="border-color: var(--secondary-glow); color: var(--secondary);">
+                            <i class="fa-solid fa-moon"></i>
+                        </div>
+                    </div>
+                    <h3 class="app-title">Ramadan Planner</h3>
+                    <p class="app-description">
+                        Your comprehensive spiritual companion. Track daily prayers, Quran reading goals, and manage
+                        your habits during the holy month.
+                    </p>
+                    <div class="app-features">
+                        <span class="feature-tag">Prayer Tracker</span>
+                        <span class="feature-tag">Quran Log</span>
+                        <span class="feature-tag">Habits</span>
+                    </div>
+                    <div class="app-footer">
+                        <a href="ramadan-planner.apk" class="btn btn-primary btn-block"
+                            style="background: var(--secondary); box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);"
+                            download>
+                            Download APK <i class="fa-solid fa-download"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Coming Soon -->
+                <article class="app-card glass-panel" style="opacity: 0.7;">
+                    <div class="app-icon-wrapper">
+                        <div class="app-icon-placeholder" style="border-style: dashed;">
+                            <i class="fa-solid fa-code-branch"></i>
+                        </div>
+                    </div>
+                    <h3 class="app-title">Project: Nexus</h3>
+                    <p class="app-description">
+                        A new generation of developer tools is currently in the works. Focused on automated workflows
+                        and code efficiency.
+                    </p>
+                    <div class="app-features">
+                        <span class="feature-tag">Development</span>
+                        <span class="feature-tag">Automation</span>
+                    </div>
+                    <div class="app-footer">
+                        <button class="btn btn-glass btn-block" disabled>
+                            In Development
+                        </button>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="why-us" class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Philosophy</span>
+                <h2 class="section-title">Built Different</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-box glass-panel">
+                    <div class="feature-icon-box">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                    <h4 class="feature-title">Offline First</h4>
+                    <p style="color: var(--text-muted)">Our apps work perfectly without internet. Your data stays on
+                        your device.</p>
+                </div>
+                <div class="feature-box glass-panel">
+                    <div class="feature-icon-box">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h4 class="feature-title">Privacy Focused</h4>
+                    <p style="color: var(--text-muted)">We don't track you. No hidden analytics, no data selling.</p>
+                </div>
+                <div class="feature-box glass-panel">
+                    <div class="feature-icon-box">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h4 class="feature-title">Native Speed</h4>
+                    <p style="color: var(--text-muted)">Optimized code that runs instantly on any device.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Contact</span>
+                <h2 class="section-title">Get in Touch</h2>
+            </div>
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h2>Sajid Tech<span style="color:var(--primary)">.</span></h2>
+                    <p>Innovating the future with tools that empower your digital independence.</p>
+                    <div style="margin-top: 20px; display: flex; gap: 15px;">
+                        <a href="https://github.com/sajidtechsolutions" target="_blank"
+                            style="color: white; font-size: 1.2rem;"><i class="fa-brands fa-github"></i></a>
+                        <a href="https://www.facebook.com/sajidtechsolutions" target="_blank"
+                            style="color: white; font-size: 1.2rem;"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.linkedin.com/in/mdsajidulbd/" target="_blank"
+                            style="color: white; font-size: 1.2rem;"><i class="fa-brands fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-nav">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#careers">Careers</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-nav">
+                    <h4>Products</h4>
+                    <ul>
+                        <li><a href="#apps">Quick Tools</a></li>
+                        <li><a href="#apps">Ramadan Planner</a></li>
+                        <li><a href="#">Roadmap</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 Sajid Tech Solutions. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
