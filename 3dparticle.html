@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Hand-Tracked Particle System</title>
+
+    <!-- MediaPipe Hand Tracking Scripts (Loaded Globally) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Tailwind for UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050505;
+            font-family: 'Inter', sans-serif;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        #video {
+            display: none;
+        }
+
+        .glass-panel {
+            background: rgba(15, 15, 20, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+
+        .pointer-events-auto {
+            pointer-events: auto;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body class="text-white">
+
+    <video id="video" autoplay playsinline></video>
+
+    <!-- UI Layer -->
+    <div id="ui-layer">
+        <div class="flex justify-between items-start">
+            <div class="glass-panel p-4 rounded-2xl max-w-sm transition-opacity duration-500 pointer-events-auto relative"
+                id="instructions" style="opacity: 0;">
+                <button onclick="document.getElementById('instructions').style.display='none'"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-white cursor-pointer" title="Dismiss">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+                <h1
+                    class="text-xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 pr-8">
+                    Quantum Particles</h1>
+                <ul class="text-sm space-y-2 text-gray-300">
+                    <li><strong class="text-white">🖐 Gestures:</strong> 0 to 10 fingers to switch shapes.</li>
+                    <li><strong class="text-white">🤏 Pinch & Pull:</strong> Pinch to expand/contract. Tight pinch =
+                        Vortex. Both hands work!</li>
+                    <li><strong class="text-white">🔄 Move & Tilt:</strong> Move X/Y to shift and color. Tilt hands to
+                        rotate the field.</li>
+                </ul>
+            </div>
+
+            <div class="glass-panel px-4 py-2 rounded-full flex items-center shadow-lg transition-opacity duration-500 pointer-events-auto cursor-pointer hover:bg-white/10"
+                id="status-badge" onclick="startExperience()">
+                <div class="w-2 h-2 rounded-full bg-red-500 mr-2" id="status-dot"></div>
+                <span id="status-text" class="text-sm font-medium">Click to Start Camera</span>
+            </div>
+        </div>
+
+        <!-- Bottom HUD for Stats -->
+        <div class="flex justify-center pb-2 transition-opacity duration-500" id="hud" style="opacity: 0;">
+            <div class="glass-panel px-6 py-2 rounded-full text-xs text-gray-400 flex gap-6 items-center">
+                <div class="flex items-center gap-2">
+                    <span>Shape: 
+                        <span id="shape-name" class="text-white font-mono text-sm">Sphere</span>
+                        <select id="shape-select" class="hidden pointer-events-auto bg-black/50 text-white font-mono text-sm border border-white/20 rounded px-1 py-0.5 outline-none cursor-pointer">
+                            <!-- Options populated via JS -->
+                        </select>
+                    </span>
+                    <button id="lock-btn"
+                        class="ml-2 px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center gap-1 pointer-events-auto"
+                        title="Lock Shape (Spacebar)">
+                        <svg id="lock-icon" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        <span id="lock-text">Unlocked</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span>Pinch: <span id="pinch-val" class="text-white font-mono text-sm inline-block w-12 text-left">0.00</span></span>
+                    <button id="lock-scale-btn"
+                        class="ml-2 px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center gap-1 pointer-events-auto"
+                        title="Lock Scale (S)">
+                        <svg id="lock-scale-icon" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        <span id="lock-scale-text">Unlocked</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Logic -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // --- System State ---
+        const STATE = {
+            particleCount: 15000,
+            currentShape: 1, // Start on Sphere (index 1)
+            shapes: [
+                'Black Hole', 'Sphere', 'Torus', 'DNA', 'Galaxy', 'Chaos Field',
+                'Heart', 'Infinity', 'Möbius Strip', 'Lissajous Knot', 'Quantum Cube'
+            ],
+            // Track state for up to 2 hands
+            hands: [
+                {
+                    targetX: 0, targetY: 0, targetZ: 0,
+                    x: 0, y: 0, z: 0,
+                    targetRoll: 0, roll: 0,
+                    targetPitch: 0, pitch: 0,
+                    targetYaw: 0, yaw: 0,
+                    velX: 0, velY: 0, velZ: 0,
+                    targetPinch: 0.5, pinchDistance: 0.5,
+                    size: 0.1,
+                    isActive: false, // Whether this hand is currently detected in frame
+                    detectedFingers: 0
+                },
+                {
+                    targetX: 0, targetY: 0, targetZ: 0,
+                    x: 0, y: 0, z: 0,
+                    targetRoll: 0, roll: 0,
+                    targetPitch: 0, pitch: 0,
+                    targetYaw: 0, yaw: 0,
+                    velX: 0, velY: 0, velZ: 0,
+                    targetPinch: 0.5, pinchDistance: 0.5,
+                    size: 0.1,
+                    isActive: false,
+                    detectedFingers: 0
+                }
+            ],
+            expansionMultiplier: 1.0,
+            targetHue: 0.0,
+            hueShift: 0.0,
+            time: 0,
+            isTracking: false,
+            totalFingers: 0,
+            gestureFrames: 0,
+            shapeLocked: false,
+            scaleLocked: false,
+            waveIntensity: 0.0
+        };
+
+        // --- DOM Elements ---
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        const statusBadge = document.getElementById('status-badge');
+        const instructions = document.getElementById('instructions');
+        const hud = document.getElementById('hud');
+        const shapeNameEl = document.getElementById('shape-name');
+        const shapeSelect = document.getElementById('shape-select');
+        const pinchValEl = document.getElementById('pinch-val');
+        const videoElement = document.getElementById('video');
+        const lockBtn = document.getElementById('lock-btn');
+        const lockIcon = document.getElementById('lock-icon');
+        const lockText = document.getElementById('lock-text');
+        const lockScaleBtn = document.getElementById('lock-scale-btn');
+        const lockScaleIcon = document.getElementById('lock-scale-icon');
+        const lockScaleText = document.getElementById('lock-scale-text');
+
+        // Populate Dropdown
+        STATE.shapes.forEach((shape, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.text = shape;
+            shapeSelect.appendChild(option);
+        });
+        shapeSelect.value = STATE.currentShape;
+
+        // Dropdown Event Listener
+        shapeSelect.addEventListener('change', (e) => {
+            STATE.currentShape = parseInt(e.target.value);
+            shapeNameEl.innerText = STATE.shapes[STATE.currentShape]; // Keep text span in sync
+        });
+
+        // --- Event Listeners ---
+        function toggleLock() {
+            STATE.shapeLocked = !STATE.shapeLocked;
+            
+            if (STATE.shapeLocked) {
+                // UI Button State
+                lockBtn.classList.replace('bg-white/10', 'bg-red-500/50');
+                lockBtn.classList.replace('hover:bg-white/20', 'hover:bg-red-500/80');
+                lockText.innerText = "Locked";
+                lockIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>';
+                
+                // Show Dropdown, Hide Text
+                shapeNameEl.classList.add('hidden');
+                shapeSelect.classList.remove('hidden');
+                shapeSelect.value = STATE.currentShape; // Ensure it matches current gesture before letting them change
+            } else {
+                // UI Button State
+                lockBtn.classList.replace('bg-red-500/50', 'bg-white/10');
+                lockBtn.classList.replace('hover:bg-red-500/80', 'hover:bg-white/20');
+                lockText.innerText = "Unlocked";
+                lockIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>';
+                
+                // Show Text, Hide Dropdown
+                shapeSelect.classList.add('hidden');
+                shapeNameEl.classList.remove('hidden');
+                shapeNameEl.innerText = STATE.shapes[STATE.currentShape];
+            }
+        }
+
+        function toggleScaleLock() {
+            STATE.scaleLocked = !STATE.scaleLocked;
+            
+            if (STATE.scaleLocked) {
+                // UI Button State
+                lockScaleBtn.classList.replace('bg-white/10', 'bg-red-500/50');
+                lockScaleBtn.classList.replace('hover:bg-white/20', 'hover:bg-red-500/80');
+                lockScaleText.innerText = "Locked";
+                lockScaleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>';
+            } else {
+                // UI Button State
+                lockScaleBtn.classList.replace('bg-red-500/50', 'bg-white/10');
+                lockScaleBtn.classList.replace('hover:bg-red-500/80', 'hover:bg-white/20');
+                lockScaleText.innerText = "Unlocked";
+                lockScaleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>';
+            }
+        }
+
+        lockBtn.addEventListener('click', toggleLock);
+        lockScaleBtn.addEventListener('click', toggleScaleLock);
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent scrolling
+                toggleLock();
+            } else if (e.code === 'KeyS' || e.key === 's' || e.key === 'S') {
+                e.preventDefault();
+                toggleScaleLock();
+            }
+        });
+
+        // --- Three.js Setup ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050505, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 18;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for performance
+        document.body.appendChild(renderer.domElement);
+
+        // --- Post-Processing (Bloom) ---
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.1;
+        bloomPass.strength = 1.8;
+        bloomPass.radius = 0.5;
+
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        // --- Particle System ---
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(STATE.particleCount * 3);
+        const colors = new Float32Array(STATE.particleCount * 3);
+        const sizes = new Float32Array(STATE.particleCount);
+
+        // Target shape arrays
+        const shapesData = [
+            new Float32Array(STATE.particleCount * 3), // 0: Black Hole
+            new Float32Array(STATE.particleCount * 3), // 1: Sphere
+            new Float32Array(STATE.particleCount * 3), // 2: Torus
+            new Float32Array(STATE.particleCount * 3), // 3: DNA
+            new Float32Array(STATE.particleCount * 3), // 4: Galaxy
+            new Float32Array(STATE.particleCount * 3), // 5: Chaos Field
+            new Float32Array(STATE.particleCount * 3), // 6: Heart
+            new Float32Array(STATE.particleCount * 3), // 7: Infinity
+            new Float32Array(STATE.particleCount * 3), // 8: Möbius
+            new Float32Array(STATE.particleCount * 3), // 9: Lissajous
+            new Float32Array(STATE.particleCount * 3), // 10: Cube
+            new Float32Array(STATE.particleCount * 3)  // 11: Matrix
+        ];
+
+        // Generate Shapes
+        let lx = 0.1, ly = 0, lz = 0;
+        const dt = 0.005;
+        for (let i = 0; i < STATE.particleCount; i++) {
+            const i3 = i * 3;
+
+            // Current position (init at 0)
+            positions[i3] = (Math.random() - 0.5) * 5;
+            positions[i3 + 1] = (Math.random() - 0.5) * 5;
+            positions[i3 + 2] = (Math.random() - 0.5) * 5;
+
+            // Color and size init
+            colors[i3] = 1; colors[i3 + 1] = 1; colors[i3 + 2] = 1;
+            sizes[i] = Math.random() * 0.5 + 0.1;
+
+            // 0. Black Hole (Fist) - Extremely dense core
+            const bhRadius = Math.random() * 0.5;
+            const bhTheta = Math.random() * Math.PI * 2;
+            const bhPhi = Math.acos((Math.random() * 2) - 1);
+            shapesData[0][i3] = bhRadius * Math.sin(bhPhi) * Math.cos(bhTheta);
+            shapesData[0][i3 + 1] = bhRadius * Math.sin(bhPhi) * Math.sin(bhTheta);
+            shapesData[0][i3 + 2] = bhRadius * Math.cos(bhPhi);
+
+            // 1. Sphere (Fibonacci)
+            const phi = Math.acos(-1 + (2 * i) / STATE.particleCount);
+            const theta = Math.sqrt(STATE.particleCount * Math.PI) * phi;
+            const rSphere = 6;
+            shapesData[1][i3] = rSphere * Math.cos(theta) * Math.sin(phi);
+            shapesData[1][i3 + 1] = rSphere * Math.sin(theta) * Math.sin(phi);
+            shapesData[1][i3 + 2] = rSphere * Math.cos(phi);
+
+            // 2. Torus
+            const u = Math.random() * Math.PI * 2;
+            const v = Math.random() * Math.PI * 2;
+            const R = 5;
+            const r = 2;
+            shapesData[2][i3] = (R + r * Math.cos(v)) * Math.cos(u);
+            shapesData[2][i3 + 1] = (R + r * Math.cos(v)) * Math.sin(u);
+            shapesData[2][i3 + 2] = r * Math.sin(v);
+
+            // 3. DNA Helix
+            const z = (i / STATE.particleCount) * 20 - 10;
+            const angle = z * 2;
+            const strand = i % 2 === 0 ? 1 : -1;
+            const noise = (Math.random() - 0.5) * 0.5;
+            shapesData[3][i3] = Math.cos(angle) * 3 * strand + noise;
+            shapesData[3][i3 + 1] = Math.sin(angle) * 3 * strand + noise;
+            shapesData[3][i3 + 2] = z;
+
+            // 4. Galaxy
+            const galAngle = Math.random() * Math.PI * 2;
+            const galRadius = Math.pow(Math.random(), 2) * 12;
+            const armOffset = Math.sin(galRadius * 0.5) * 2;
+            shapesData[4][i3] = Math.cos(galAngle + armOffset) * galRadius;
+            shapesData[4][i3 + 1] = (Math.random() - 0.5) * (1 - galRadius / 12) * 3;
+            shapesData[4][i3 + 2] = Math.sin(galAngle + armOffset) * galRadius;
+
+            // 5. Chaos Field (Open Hand - Lorenz Attractor)
+            const dx = (10 * (ly - lx)) * dt;
+            const dy = (lx * (28 - lz) - ly) * dt;
+            const dz = (lx * ly - (8 / 3) * lz) * dt;
+            lx += dx;
+            ly += dy;
+            lz += dz;
+            shapesData[5][i3] = lx * 0.4 + (Math.random() - 0.5) * 1.5;
+            shapesData[5][i3 + 1] = ly * 0.4 + (Math.random() - 0.5) * 1.5;
+            shapesData[5][i3 + 2] = (lz - 24) * 0.4 + (Math.random() - 0.5) * 1.5;
+
+            // 6. 3D Heart (Parametric)
+            const ht = Math.random() * Math.PI * 2;
+            const hp = Math.random() * Math.PI;
+            // 3D heart-like equation components
+            const hx = 16 * Math.pow(Math.sin(ht), 3);
+            const hy = 13 * Math.cos(ht) - 5 * Math.cos(2 * ht) - 2 * Math.cos(3 * ht) - Math.cos(4 * ht);
+            const hz = 6 * Math.cos(hp); // Adding depth to 2D heart
+            // Add some volumetric noise inside
+            const heartScale = 0.35 * Math.pow(Math.random(), 0.3); // Favor edges but fill inside
+            shapesData[6][i3] = hx * heartScale;
+            // Invert Y because 3D engines typically have +Y up, math formulas have it inverted
+            shapesData[6][i3 + 1] = hy * heartScale + 1; 
+            shapesData[6][i3 + 2] = hz * heartScale;
+
+            // 7. Infinity (Lemniscate)
+            const it = Math.random() * Math.PI * 2;
+            const iScale = 8;
+            const denom = 1 + Math.sin(it) * Math.sin(it);
+            shapesData[7][i3] = (iScale * Math.cos(it)) / denom + (Math.random()-0.5);
+            shapesData[7][i3 + 1] = (iScale * Math.cos(it) * Math.sin(it)) / denom + (Math.random()-0.5);
+            shapesData[7][i3 + 2] = Math.sin(it * 3) * 2 + (Math.random()-0.5); // 3D waviness
+
+            // 8. Möbius Strip
+            const mu = Math.random() * Math.PI * 2;
+            const mv = (Math.random() - 0.5) * 3; // Width of strip
+            const mR = 4; // Main radius
+            shapesData[8][i3] = (mR + mv * Math.cos(mu / 2)) * Math.cos(mu);
+            shapesData[8][i3 + 1] = (mR + mv * Math.cos(mu / 2)) * Math.sin(mu);
+            shapesData[8][i3 + 2] = mv * Math.sin(mu / 2);
+
+            // 9. Lissajous Knot (Complex 3D Curve)
+            const lissT = i * 0.01;
+            const A = 5, B = 4, C = 3; // Frequencies
+            const lNoise = (Math.random() - 0.5) * 0.5;
+            shapesData[9][i3] = 6 * Math.sin(A * lissT + Math.PI / 2) + lNoise;
+            shapesData[9][i3 + 1] = 6 * Math.sin(B * lissT) + lNoise;
+            shapesData[9][i3 + 2] = 6 * Math.sin(C * lissT) + lNoise;
+
+            // 10. Quantum Cube (Volumetric Shell)
+            // Evenly distribute particles to the 6 faces of a cube
+            const cSize = 4;
+            let cx = (Math.random() - 0.5) * 2 * cSize;
+            let cy = (Math.random() - 0.5) * 2 * cSize;
+            let cz = (Math.random() - 0.5) * 2 * cSize;
+            const axis = Math.floor(Math.random() * 3);
+            const side = Math.random() > 0.5 ? cSize : -cSize;
+            if (axis === 0) cx = side;
+            else if (axis === 1) cy = side;
+            else cz = side;
+            shapesData[10][i3] = cx;
+            shapesData[10][i3 + 1] = cy;
+            shapesData[10][i3 + 2] = cz;
+
+            // 11. Matrix Grid
+            const gSize = 2.5;
+            const gCount = Math.cbrt(STATE.particleCount); // Approx 24x24x24
+            const gxOffset = (i % gCount) - gCount / 2;
+            const gyOffset = (Math.floor(i / gCount) % gCount) - gCount / 2;
+            const gzOffset = Math.floor(i / (gCount * gCount)) - gCount / 2;
+            // Add slight jitter so it looks like data points
+            shapesData[11][i3] = gxOffset * (gSize / gCount) * 8 + (Math.random()-0.5)*0.2;
+            shapesData[11][i3 + 1] = gyOffset * (gSize / gCount) * 8 + (Math.random()-0.5)*0.2;
+            shapesData[11][i3 + 2] = gzOffset * (gSize / gCount) * 8 + (Math.random()-0.5)*0.2;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        // Custom Shader Material for glowing circular particles
+        const particleMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0 },
+                globalHue: { value: 0 },
+                sizeMultiplier: { value: 1.0 } // Added size multiplier
+            },
+            vertexShader: `
+                attribute float size;
+                varying vec3 vColor;
+                uniform float sizeMultiplier;
+                void main() {
+                    vColor = color;
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    gl_PointSize = size * sizeMultiplier * (200.0 / -mvPosition.z);
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vColor;
+                void main() {
+                    float r = distance(gl_PointCoord, vec2(0.5, 0.5));
+                    if(r > 0.5) discard;
+                    // Soft circular glow
+                    float alpha = smoothstep(0.5, 0.1, r);
+                    gl_FragColor = vec4(vColor, alpha);
+                }
+            `,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            transparent: true,
+            vertexColors: true
+        });
+
+        const particles = new THREE.Points(geometry, particleMaterial);
+        scene.add(particles);
+
+        // --- Helper: Map function ---
+        function mapRange(val, inMin, inMax, outMin, outMax) {
+            return (val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        }
+
+        // --- Helper: 3D Distance ---
+        function getDistance3D(p1, p2) {
+            return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2 + (p1.z - p2.z) ** 2);
+        }
+
+        // --- MediaPipe Processing ---
+        function onResults(results) {
+            // First, mark all hands inactive
+            STATE.hands[0].isActive = false;
+            STATE.hands[1].isActive = false;
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                if (!STATE.isTracking) {
+                    STATE.isTracking = true;
+                    statusDot.classList.replace('bg-yellow-500', 'bg-green-500');
+                    statusText.innerText = "Tracking Active";
+                    instructions.style.opacity = '1';
+                    hud.style.opacity = '1';
+
+                    // Auto-hide instructions after 8 seconds so it doesn't block the view
+                    setTimeout(() => {
+                        if (instructions.style.display !== 'none') {
+                            instructions.style.opacity = '0';
+                            setTimeout(() => instructions.style.display = 'none', 500);
+                        }
+                    }, 8000);
+                }
+
+                // Temporary variable to hold sum of fingers across all detected hands
+                let currentTotalFingers = 0;
+
+                // Process up to 2 hands
+                for (let i = 0; i < Math.min(2, results.multiHandLandmarks.length); i++) {
+                    const landmarks = results.multiHandLandmarks[i];
+                    const handState = STATE.hands[i];
+                    handState.isActive = true;
+
+                    // 1. Calculate Hand Center & Size
+                    const palmX = landmarks[9].x;
+                    const palmY = landmarks[9].y;
+                    const palmZ = landmarks[9].z; // Z depth relative to wrist
+
+                    // Hand size to normalize distances across different distances from camera
+                    handState.size = getDistance3D(landmarks[0], landmarks[9]);
+
+                    // Map to scene coordinates (-1 to 1) and set TARGETS for smooth interpolation
+                    const newTargetX = (palmX - 0.5) * 2;
+                    const newTargetY = -(palmY - 0.5) * 2;
+                    const newTargetZ = palmZ;
+                    
+                    // Estimate velocity based on change from last target (dampened)
+                    handState.velX = (newTargetX - handState.targetX) * 0.5;
+                    handState.velY = (newTargetY - handState.targetY) * 0.5;
+                    handState.velZ = (newTargetZ - handState.targetZ) * 0.5;
+
+                    handState.targetX = newTargetX;
+                    handState.targetY = newTargetY;
+                    handState.targetZ = newTargetZ;
+                    
+                    // Only Hand 0 controls the Hue
+                    if (i === 0) {
+                        STATE.targetHue = palmX;
+                    }
+
+                    // Calculate Hand Rotation (Roll, Pitch, and full 360 Yaw) using 3D Matrix
+                    const indexMcp = landmarks[5];
+                    const pinkyMcp = landmarks[17];
+                    const wrist = landmarks[0];
+                    const middleMcp = landmarks[9];
+
+                    // Convert to 3D vectors mapping to our scene space
+                    const pWrist = new THREE.Vector3((wrist.x - 0.5) * 2, -(wrist.y - 0.5) * 2, wrist.z * 2);
+                    const pMid = new THREE.Vector3((middleMcp.x - 0.5) * 2, -(middleMcp.y - 0.5) * 2, middleMcp.z * 2);
+                    const pIndex = new THREE.Vector3((indexMcp.x - 0.5) * 2, -(indexMcp.y - 0.5) * 2, indexMcp.z * 2);
+                    const pPinky = new THREE.Vector3((pinkyMcp.x - 0.5) * 2, -(pinkyMcp.y - 0.5) * 2, pinkyMcp.z * 2);
+
+                    // Hand Y-axis (Up) vector: from Wrist to Middle MCP
+                    const yAxis = new THREE.Vector3().subVectors(pMid, pWrist).normalize();
+
+                    // Hand X-axis (Right) vector: from Index MCP to Pinky MCP
+                    let xAxis = new THREE.Vector3().subVectors(pPinky, pIndex).normalize();
+
+                    // Flip X axis for Left hand so orientation angles behave consistently
+                    if (results.multiHandedness && results.multiHandedness[i].label === 'Left') {
+                        xAxis.negate();
+                    }
+
+                    // Hand Z-axis (Forward Normal): Orthogonal to X and Y
+                    const zAxis = new THREE.Vector3().crossVectors(xAxis, yAxis).normalize();
+
+                    // Ensure complete orthogonality
+                    xAxis.crossVectors(yAxis, zAxis).normalize();
+
+                    // Create rotation matrix and extract Euler angles
+                    const rotMat = new THREE.Matrix4().makeBasis(xAxis, yAxis, zAxis);
+                    const euler = new THREE.Euler().setFromRotationMatrix(rotMat, 'YXZ');
+
+                    handState.targetPitch = euler.x;
+                    handState.targetYaw = euler.y;
+                    handState.targetRoll = euler.z;
+
+                    // 2. Calculate Pinch Distance (Thumb tip to Index tip), normalized by hand size
+                    // Only update target pinch if the scale is NOT locked
+                    if (!STATE.scaleLocked) {
+                        const thumbTip = landmarks[4];
+                        const indexTip = landmarks[8];
+                        handState.targetPinch = getDistance3D(thumbTip, indexTip) / handState.size;
+                    }
+
+                    // 3. Ultra-Robust Finger Counting
+                    let fingersUp = 0;
+
+                    // Thumb: Compare distance to pinky base vs thumb base
+                    if (getDistance3D(landmarks[17], landmarks[4]) > getDistance3D(landmarks[17], landmarks[3])) fingersUp++;
+                    // Other fingers: tip further from wrist than PIP joint
+                    if (getDistance3D(wrist, landmarks[8]) > getDistance3D(wrist, landmarks[6])) fingersUp++;  // Index
+                    if (getDistance3D(wrist, landmarks[12]) > getDistance3D(wrist, landmarks[10])) fingersUp++; // Middle
+                    if (getDistance3D(wrist, landmarks[16]) > getDistance3D(wrist, landmarks[14])) fingersUp++; // Ring
+                    if (getDistance3D(wrist, landmarks[20]) > getDistance3D(wrist, landmarks[18])) fingersUp++; // Pinky
+                    
+                    handState.detectedFingers = fingersUp;
+                    currentTotalFingers += fingersUp;
+                }
+
+                // 4. Gesture Debouncing (Only process if NOT locked)
+                // Require gesture to be held consistently for a few frames to prevent overlapping glitches
+                if (!STATE.shapeLocked) {
+                    if (currentTotalFingers === STATE.totalFingers) {
+                        STATE.gestureFrames++;
+                        // Map 0-10 fingers to exactly index 0-10
+                        if (STATE.gestureFrames > 8 && currentTotalFingers >= 0 && currentTotalFingers <= 10) {
+                            const newShape = currentTotalFingers;
+                            if (STATE.currentShape !== newShape) {
+                                STATE.currentShape = newShape;
+                                shapeNameEl.innerText = STATE.shapes[STATE.currentShape];
+                            }
+                        }
+                    } else {
+                        STATE.totalFingers = currentTotalFingers;
+                        STATE.gestureFrames = 0;
+                    }
+                }
+
+            } else {
+                if (STATE.isTracking) {
+                    STATE.isTracking = false;
+                    statusDot.classList.replace('bg-green-500', 'bg-yellow-500');
+                    statusText.innerText = "Searching for Hand...";
+                    // Gradually return to default state
+                    STATE.expansionMultiplier += (1.0 - STATE.expansionMultiplier) * 0.05;
+                    // Reset pinch for both hands
+                    STATE.hands[0].pinchDistance = 0.5;
+                    STATE.hands[1].pinchDistance = 0.5;
+                }
+            }
+        }
+
+        // --- Initialization ---
+        window.startExperience = async function () {
+            if (window.isStarted) return;
+            window.isStarted = true;
+            statusBadge.classList.remove('cursor-pointer', 'hover:bg-white/10');
+            statusText.innerHTML = '<span class="spinner"></span> Initializing AI...';
+            statusDot.classList.replace('bg-red-500', 'bg-yellow-500');
+
+            try {
+                const hands = new window.Hands({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                    }
+                });
+
+                hands.setOptions({
+                    maxNumHands: 2,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.75,
+                    minTrackingConfidence: 0.75
+                });
+
+                hands.onResults(onResults);
+
+                const cameraStream = new window.Camera(videoElement, {
+                    onFrame: async () => {
+                        await hands.send({ image: videoElement });
+                    },
+                    width: 640,
+                    height: 480
+                });
+
+                await cameraStream.start();
+            } catch (error) {
+                statusText.innerText = "Camera Error. Check permissions.";
+                statusDot.classList.replace('bg-yellow-500', 'bg-red-500');
+                console.error(error);
+            }
+        };
+
+        // --- Animation Loop ---
+        const clock = new THREE.Clock();
+        const colorObj = new THREE.Color();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            STATE.time = clock.getElapsedTime();
+            const delta = clock.getDelta();
+
+            // Apply smoothing interpolations (Lerp) to tracking data to eliminate jitter
+            let activeHandCount = 0;
+            let avgPinchDistance = 0;
+            let targetRotX = 0, targetRotY = 0, targetRotZ = 0;
+            
+            if (STATE.isTracking) {
+                STATE.hueShift += (STATE.targetHue - STATE.hueShift) * 0.05;
+
+                for (let i = 0; i < 2; i++) {
+                    const handState = STATE.hands[i];
+                    if (!handState.isActive) continue;
+                    
+                    activeHandCount++;
+
+                    // Increased smoothing (lower factor) for super fluid feel
+                    handState.x += (handState.targetX - handState.x) * 0.08;
+                    handState.y += (handState.targetY - handState.y) * 0.08;
+                    handState.z += (handState.targetZ - handState.z) * 0.08;
+
+                    // Smooth rotation with angle wrapping for roll
+                    let rollDiff = handState.targetRoll - handState.roll;
+                    if (rollDiff > Math.PI) rollDiff -= Math.PI * 2;
+                    if (rollDiff < -Math.PI) rollDiff += Math.PI * 2;
+                    handState.roll += rollDiff * 0.1;
+                    handState.pitch += (handState.targetPitch - handState.pitch) * 0.1;
+
+                    // Smooth rotation with angle wrapping for Yaw (360 turning)
+                    let yawDiff = handState.targetYaw - handState.yaw;
+                    if (yawDiff > Math.PI) yawDiff -= Math.PI * 2;
+                    if (yawDiff < -Math.PI) yawDiff += Math.PI * 2;
+                    handState.yaw += yawDiff * 0.1;
+
+                    handState.pinchDistance += (handState.targetPinch - handState.pinchDistance) * 0.15;
+                    avgPinchDistance += handState.pinchDistance;
+
+                    // Apply Rotation: Hand movement + True 3D Hand Orientation
+                    // X-axis rotation uses hand vertical position and true pitch
+                    targetRotX += handState.y * 1.5 + handState.pitch;
+                    // Y-axis rotation maps exactly to hand yaw
+                    targetRotY += -handState.yaw; 
+                    // Z-axis maps exactly to hand roll (no offset needed for 3D matrix)
+                    targetRotZ += -handState.roll;
+                }
+            }
+
+            // Average the values if tracking
+            if (activeHandCount > 0) {
+                avgPinchDistance /= activeHandCount;
+                targetRotX /= activeHandCount;
+                targetRotY /= activeHandCount;
+                targetRotZ /= activeHandCount;
+            } else {
+                avgPinchDistance = 0.5; // Default when no hands
+            }
+
+            // Map hand depth (Z) to particle size. Use primary hand (index 0) if active, else 0
+            const depthZ = STATE.hands[0].isActive ? STATE.hands[0].z : 0;
+            const targetSize = mapRange(depthZ, -0.15, 0.1, 3.0, 0.4);
+            particleMaterial.uniforms.sizeMultiplier.value += (targetSize - particleMaterial.uniforms.sizeMultiplier.value) * 0.1;
+
+            // Update UI smoothly (use average pinch)
+            pinchValEl.innerText = avgPinchDistance.toFixed(3);
+
+            // Map normalized avg pinch to expansion multiplier (Typically 0.15 to 1.2)
+            const targetExpansion = Math.max(0.01, mapRange(avgPinchDistance, 0.15, 1.2, 0.05, 4.0));
+            STATE.expansionMultiplier += (targetExpansion - STATE.expansionMultiplier) * 0.12;
+
+            // Calculate Vortex effect based on how tight the pinch is
+            const vortexSpeed = avgPinchDistance < 0.25 ? mapRange(avgPinchDistance, 0.25, 0.1, 0.005, 0.08) : 0.001;
+
+            // Calculate Wave Intensity if hand is closed & scale is locked
+            const targetWave = (STATE.scaleLocked && avgPinchDistance < 0.25) ? 1.0 : 0.0;
+            STATE.waveIntensity += (targetWave - STATE.waveIntensity) * 0.15;
+
+            // Rotate particles (if activeHandCount == 0, these will be 0 and it won't rotate more on its own)
+            particles.rotation.x += (targetRotX - particles.rotation.x) * 0.08;
+            particles.rotation.y += (targetRotY - particles.rotation.y) * 0.08;
+            particles.rotation.z += (targetRotZ - particles.rotation.z) * 0.08 + vortexSpeed;
+
+            // Update particle positions, colors, and sizes
+            const posAttr = geometry.attributes.position;
+            const colAttr = geometry.attributes.color;
+            const sizeAttr = geometry.attributes.size;
+            const currentShapeData = shapesData[STATE.currentShape];
+            
+            // Calculate wave crest position (moves outward over time)
+            // Time is multiplied to make it expand quickly
+            const currentWaveRadius = (STATE.time % 2.0) * 15.0;
+
+            for (let i = 0; i < STATE.particleCount; i++) {
+                const i3 = i * 3;
+
+                // 1. Calculate Target Position
+                // Get base position from current shape
+                let tx = currentShapeData[i3];
+                let ty = currentShapeData[i3 + 1];
+                let tz = currentShapeData[i3 + 2];
+
+                // Apply dynamic expansion based on pinch
+                tx *= STATE.expansionMultiplier;
+                ty *= STATE.expansionMultiplier;
+                tz *= STATE.expansionMultiplier;
+
+                // Base particle size
+                let targetSize = Math.random() * 0.5 + 0.1;
+                let colorBurst = 0.0;
+
+                // Apply interactive wave effect when hand is closed and scale locked
+                if (STATE.waveIntensity > 0.001) {
+                    
+                    // Iterate through active hands, summing their push influence on this particle
+                    let maxLocalBurst = 0.0;
+                    
+                    for (let h = 0; h < 2; h++) {
+                        const handState = STATE.hands[h];
+                        if (!handState.isActive) continue;
+
+                        // Approximate hand position mapped to 3D scene space bounds
+                        const hx = handState.x * 12.0; 
+                        const hy = handState.y * 12.0;
+                        const hz = handState.z * 12.0;
+                        
+                        const distToHand = Math.sqrt((tx - hx)**2 + (ty - hy)**2 + (tz - hz)**2);
+                        
+                        // Wave Crest Logic (Proximity to the expanding wave front)
+                        // The crest is about 2.0 units thick
+                        const distToCrest = Math.abs(distToHand - currentWaveRadius);
+                        const isInCrest = distToCrest < 2.5;
+
+                        // Create an outward moving sinusoidal ripple
+                        const ripple = Math.sin(distToHand * 1.5 - STATE.time * 15.0) * STATE.waveIntensity;
+                        
+                        // 1. Position Push & Velocity Direction
+                        // Combine radial outward push with the hand's directional velocity sweep
+                        const pushFactor = ripple * 4.5 / (distToHand * 0.3 + 1.0);
+                        tx += (tx - hx) * pushFactor + (handState.velX * 30.0 * STATE.waveIntensity);
+                        ty += (ty - hy) * pushFactor + (handState.velY * 30.0 * STATE.waveIntensity) + Math.cos(tx * 0.8 + STATE.time * 3.0) * STATE.waveIntensity * 1.5; // Upward swirling noise
+                        tz += (tz - hz) * pushFactor + (handState.velZ * 30.0 * STATE.waveIntensity);
+                        
+                        // 2. Vertex Size Swell
+                        if (isInCrest) {
+                            // Swell particles up to 4x size at the peak of the crest
+                            const swell = 1.0 - (distToCrest / 2.5); // 1.0 at center, 0.0 at edge
+                            targetSize += swell * 2.0 * STATE.waveIntensity;
+                            
+                            // 3. Color Burst calculation
+                            maxLocalBurst = Math.max(maxLocalBurst, swell * STATE.waveIntensity);
+                        }
+                    }
+                    
+                    colorBurst = maxLocalBurst;
+                }
+                
+                // Update size smoothly
+                sizeAttr.array[i] += (targetSize - sizeAttr.array[i]) * 0.2;
+
+                // Apply continuous organic noise (makes it feel infinite/alive)
+                const noiseFreq = 0.5;
+                const noiseAmp = 0.5 * STATE.expansionMultiplier;
+                tx += Math.sin(STATE.time + ty * noiseFreq) * noiseAmp;
+                ty += Math.cos(STATE.time + tx * noiseFreq) * noiseAmp;
+
+                // 2. Lerp Current Position to Target
+                const lerpSpeed = 0.05; // Smoothing
+                posAttr.array[i3] += (tx - posAttr.array[i3]) * lerpSpeed;
+                posAttr.array[i3 + 1] += (ty - posAttr.array[i3 + 1]) * lerpSpeed;
+                posAttr.array[i3 + 2] += (tz - posAttr.array[i3 + 2]) * lerpSpeed;
+
+                // 3. Dynamic Colors
+                // Base hue shifted by hand movement, local offset by particle position
+                const localHueOffset = (posAttr.array[i3] + posAttr.array[i3 + 1]) * 0.02;
+                const hue = (STATE.hueShift + STATE.time * 0.1 + localHueOffset) % 1.0;
+
+                // Brightness pulsates with pinch expansion, and drastically spikes during a color burst wave
+                let lightness = Math.min(0.8, 0.4 + (STATE.expansionMultiplier * 0.1));
+                lightness = Math.min(1.0, lightness + colorBurst); // Boost up to pure white (1.0)
+                
+                // Desaturate slightly during a burst to make it more 'energy-like' white
+                const saturation = Math.max(0.2, 0.8 - (colorBurst * 0.6));
+
+                colorObj.setHSL(hue, saturation, lightness);
+
+                // Add a small trailing effect/smoothing to color transitions
+                // Fast color update if bursting, slow if normal trailing
+                const colorLerp = colorBurst > 0.1 ? 0.8 : 0.1;
+                colAttr.array[i3] += (colorObj.r - colAttr.array[i3]) * colorLerp;
+                colAttr.array[i3 + 1] += (colorObj.g - colAttr.array[i3 + 1]) * colorLerp;
+                colAttr.array[i3 + 2] += (colorObj.b - colAttr.array[i3 + 2]) * colorLerp;
+            }
+
+            posAttr.needsUpdate = true;
+            colAttr.needsUpdate = true;
+            sizeAttr.needsUpdate = true;
+
+            // Render via composer for Bloom
+            composer.render();
+        }
+
+        animate();
+
+        // --- Window Resize Handling ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+
+</html>
