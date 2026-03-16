@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Hand Drift - AI Controlled 3D Racer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    
+    <!-- Three.js Post Processing -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050510;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            /* Let clicks pass through to game UI if needed */
+        }
+
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 20;
+        }
+
+        /* NEW: Speedometer & Throttle HUD */
+        #speed-hud {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 20;
+        }
+
+        #throttle-status {
+            font-size: 22px;
+            margin-top: 5px;
+            transition: color 0.2s;
+        }
+
+        /* Mini camera feed for user feedback */
+        #camera-feed-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 160px;
+            height: 120px;
+            border: 2px solid #f0f;
+            border-radius: 8px;
+            box-shadow: 0 0 15px #f0f;
+            z-index: 20;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #output_canvas {
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+            /* Mirror the output to match user movements intuitively */
+        }
+
+        #input_video {
+            display: none;
+        }
+
+        .neon-btn {
+            pointer-events: auto;
+            background: transparent;
+            color: #0ff;
+            border: 2px solid #0ff;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #0ff, inset 0 0 10px #0ff;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+
+        .neon-btn:hover:not(:disabled) {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 20px #0ff, inset 0 0 20px #0ff;
+        }
+
+        .neon-btn:disabled {
+            color: #555;
+            border-color: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #f0f;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HUD -->
+    <div class="hud" id="score-display">SCORE: 0</div>
+    <div id="speed-hud">
+        SPEED: <span id="speed-value">100</span> MPH<br>
+        <div id="throttle-status" style="color: #0ff;">🟢 NORMAL</div>
+    </div>
+
+    <!-- Mini Camera Feed -->
+    <div id="camera-feed-container">
+        <video id="input_video"></video>
+        <canvas id="output_canvas" width="320" height="240"></canvas>
+    </div>
+
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+        <!-- Start Screen -->
+        <div id="start-screen" class="panel">
+            <h1 class="text-5xl font-bold mb-4" style="color: #f0f; text-shadow: 0 0 15px #f0f;">NEON HAND DRIFT</h1>
+            <p class="text-gray-300 mb-6 max-w-md mx-auto">
+                Control the car by moving your hand left and right in front of your camera. Dodge the red cubes!
+            </p>
+            <div id="loading-status" class="text-cyan-400 mb-4 animate-pulse">Waiting for camera permission...</div>
+            <button id="start-btn" class="neon-btn">START ENGINE</button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="panel" style="display: none;">
+            <h1 class="text-5xl font-bold mb-4" style="color: #f00; text-shadow: 0 0 15px #f00;">CRASHED!</h1>
+            <p class="text-2xl text-white mb-6">Final Score: <span id="final-score">0</span></p>
+            <button id="restart-btn" class="neon-btn">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <!-- 3D Canvas Container -->
+    <div id="game-container"></div>
+
+    <script>
+        // --- GAME VARIABLES ---
+        let scene, camera, renderer;
+        let carGroup, gridHelper;
+        let centerLines = [];
+        let obstacles = [];
+        let brakeLights = []; // To toggle brake lights
+        const ROAD_WIDTH = 14;
+        const OBSTACLE_COUNT = 8; // Slightly increased since we are spreading them out much further
+
+        // NEW FEATURE VARIABLES
+        let trailParticles = [];
+        let timeElapsed = 0;
+        
+        let explosionParticles = [];
+        let crashPhysics = { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0 };
+        let cameraShake = 0;
+
+        // POST PROCESSING VARIABLES
+        let composer, bloomPass;
+
+        // NEW BACKGROUND VARIABLES
+        let sunGroup, starMesh;
+        let mountains = [];
+
+        let gameState = 'LOADING'; // LOADING, MENU, PLAYING, GAMEOVER
+        let score = 0;
+        let baseSpeed = 0.5; // INCREASED base speed (was 0.3)
+        let speedMultiplier = 1.0; // Gradually increases over time
+
+        // NEW CONTROL VARIABLES
+        let targetCarX = 0; // Left/Right steering
+        let targetThrottle = 1.0; // Up/Down speed control (0.4 = Brake, 1.0 = Normal, 2.5 = Boost)
+        let currentThrottle = 1.0; // Smoothed throttle
+        let targetFOV = 60; // For warp speed visual effect
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const loadingStatus = document.getElementById('loading-status');
+        const scoreDisplay = document.getElementById('score-display');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const speedValueDisplay = document.getElementById('speed-value');
+        const throttleStatusDisplay = document.getElementById('throttle-status');
+
+        // MediaPipe Elements
+        const videoElement = document.getElementById('input_video');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+
+        // --- 1. THREE.JS SETUP ---
+        function initThreeJS() {
+            const container = document.getElementById('game-container');
+
+            scene = new THREE.Scene();
+            // THINNED FOG: Reduced density from 0.025 to 0.012 to see much further down the track
+            scene.fog = new THREE.FogExp2(0x050510, 0.012);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 12);
+            camera.lookAt(0, 0, -10);
+
+            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
+            container.appendChild(renderer.domElement);
+
+            // Post-Processing Setup for NEON BLOOM
+            const renderScene = new THREE.RenderPass(scene, camera);
+            bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+            bloomPass.threshold = 0.1;
+            bloomPass.strength = 1.8; // Intense Glow
+            bloomPass.radius = 0.5;
+
+            composer = new THREE.EffectComposer(renderer);
+            composer.addPass(renderScene);
+            composer.addPass(bloomPass);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Brightened from 0.6
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0x00ffff, 1.2); // Brightened from 0.8
+            dirLight.position.set(5, 10, 5);
+            scene.add(dirLight);
+
+            const pinkLight = new THREE.PointLight(0xff00ff, 1.5, 100); // Brightened
+            pinkLight.position.set(0, 2, -10);
+            scene.add(pinkLight);
+
+            // --- ENHANCED GROUND & ROAD SYSTEM ---
+
+            // Outer Ground (Grid + Plane)
+            gridHelper = new THREE.GridHelper(400, 200, 0xff00ff, 0xaa00aa); // Brighter pink grid
+            gridHelper.position.y = -1;
+            // Distort grid vertically to look like mountains/waves
+            const gridPos = gridHelper.geometry.attributes.position;
+            for(let i=0; i<gridPos.count; i++) {
+                if(Math.abs(gridPos.getX(i)) > ROAD_WIDTH / 1.5) { // Leave road area flat
+                    gridPos.setY(i, Math.random() * 2.5);
+                }
+            }
+            gridHelper.geometry.computeVertexNormals();
+            scene.add(gridHelper);
+
+            const groundGeo = new THREE.PlaneGeometry(1000, 1000);
+            const groundMat = new THREE.MeshStandardMaterial({
+                color: 0x02000a,
+                roughness: 0.2,
+                metalness: 0.8,
+            });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -1.1;
+            scene.add(ground);
+
+            // The Road (Hides the grid, reflects cars/lights)
+            const roadGeo = new THREE.PlaneGeometry(ROAD_WIDTH, 1000);
+            const roadMat = new THREE.MeshStandardMaterial({
+                color: 0x050505, // Dark asphalt
+                roughness: 0.1,  // Very smooth/wet looking
+                metalness: 0.5,
+            });
+            const road = new THREE.Mesh(roadGeo, roadMat);
+            road.rotation.x = -Math.PI / 2;
+            road.position.y = -0.95; // Above the ground & grid
+            scene.add(road);
+
+            // Sidelines (Neon Borders)
+            const edgeGeo = new THREE.BoxGeometry(0.4, 0.2, 200);
+            const edgeMat = new THREE.MeshBasicMaterial({ 
+                color: 0x00ffff // Pure cyan basic material blooms heavily
+            });
+
+            const leftEdge = new THREE.Mesh(edgeGeo, edgeMat);
+            leftEdge.position.set(-ROAD_WIDTH / 2, -0.9, -50);
+            scene.add(leftEdge);
+
+            const rightEdge = new THREE.Mesh(edgeGeo, edgeMat);
+            rightEdge.position.set(ROAD_WIDTH / 2, -0.9, -50);
+            scene.add(rightEdge);
+
+            // Center Dashed Lines
+            const dashGeo = new THREE.PlaneGeometry(0.4, 4); // Wider dashes
+            const dashMat = new THREE.MeshBasicMaterial({ color: 0x00ffff }); // Pure cyan basic
+            
+            for (let i = 0; i < 20; i++) {
+                let dash = new THREE.Mesh(dashGeo, dashMat);
+                dash.rotation.x = -Math.PI / 2;
+                dash.position.y = -0.94; // slightly above road
+                dash.position.z = -i * 10;
+                scene.add(dash);
+                centerLines.push(dash);
+            }
+
+            // Build Background (Sun & Stars)
+            buildBackground();
+
+            // Build Neon Mountains
+            buildMountains();
+
+            // Build Player Car
+            buildCar();
+
+            // Build Obstacles
+            buildObstacles();
+
+            window.addEventListener('resize', onWindowResize, false);
+
+            // Start rendering loop even in background
+            animate();
+        }
+
+        function buildMountains() {
+            const geo = new THREE.ConeGeometry(120, 250, 4); // Larger mountains
+            const mat = new THREE.MeshPhongMaterial({
+                color: 0x220055, // Brighter base purple
+                emissive: 0x110033, // Slightly brighter emissive
+                flatShading: true
+            });
+            const wireMat = new THREE.LineBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.6 }); // Much more visible wireframe
+            const edges = new THREE.EdgesGeometry(geo);
+
+            for (let i = 0; i < 30; i++) {
+                const mesh = new THREE.Mesh(geo, mat);
+                const wire = new THREE.LineSegments(edges, wireMat);
+                mesh.add(wire);
+
+                // Alternate left and right side of the track
+                let side = i % 2 === 0 ? 1 : -1;
+
+                // Place closer to the road but still outside
+                mesh.position.x = side * (80 + Math.random() * 150);
+                mesh.position.y = 10 + Math.random() * 60; // Higher peaks
+                mesh.position.z = -Math.random() * 800; // Bring them slightly closer than 1000
+
+                mesh.rotation.y = Math.PI / 4; // Face flat side to camera
+
+                scene.add(mesh);
+                mountains.push(mesh);
+            }
+        }
+
+        function buildBackground() {
+            // 1. Retro Synthwave Sun
+            sunGroup = new THREE.Group();
+            sunGroup.position.set(0, 40, -400); // Far away in the horizon
+
+            const sunGeo = new THREE.CircleGeometry(120, 64);
+            const sunMat = new THREE.MeshBasicMaterial({
+                color: 0xff4400, // Very Bright orange for bloom
+                fog: false // Ensures it punches through the atmospheric fog
+            });
+            const sun = new THREE.Mesh(sunGeo, sunMat);
+            sunGroup.add(sun);
+
+            // Horizontal stripes cut out of the sun
+            const stripeGeo = new THREE.PlaneGeometry(300, 5);
+            // Match the background color to create the "cutout" illusion
+            const stripeMat = new THREE.MeshBasicMaterial({ color: 0x050510, fog: false });
+
+            for (let i = 0; i < 10; i++) {
+                const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+                // Space them out, getting thicker/further apart near the bottom
+                stripe.position.set(0, -90 + (i * 18), 1);
+                sunGroup.add(stripe);
+            }
+            scene.add(sunGroup);
+
+            // 2. Starfield
+            const starGeo = new THREE.BufferGeometry();
+            const starCount = 2000;
+            const starPos = new Float32Array(starCount * 3);
+
+            for (let i = 0; i < starCount; i++) {
+                starPos[i * 3] = (Math.random() - 0.5) * 1000;     // X spread
+                starPos[i * 3 + 1] = Math.random() * 300 + 20;       // Y (Above the road)
+                starPos[i * 3 + 2] = (Math.random() - 1.0) * 1000;   // Z (Deep into the background)
+            }
+
+            starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+            const starMat = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 1.5,
+                transparent: true,
+                opacity: 0.8,
+                fog: false
+            });
+
+            starMesh = new THREE.Points(starGeo, starMat);
+            scene.add(starMesh);
+        }
+
+        function buildCar() {
+            carGroup = new THREE.Group();
+
+            // --- SUPER CAR DESIGN ---
+            // Main Body (Lower, sleeker)
+            const bodyGeo = new THREE.BoxGeometry(2.2, 0.5, 4.5);
+            const bodyMat = new THREE.MeshPhongMaterial({
+                color: 0x00ffff,
+                emissive: 0x002288,
+                shininess: 150,
+                specular: 0xffffff
+            });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.35;
+            
+            // Nose (Angled front)
+            const noseGeo = new THREE.CylinderGeometry(0, 1.1, 1.5, 4, 1, false, Math.PI / 4);
+            const nose = new THREE.Mesh(noseGeo, bodyMat);
+            nose.rotation.x = Math.PI / 2;
+            nose.rotation.z = Math.PI / 4;
+            nose.scale.set(1.4, 1, 0.3);
+            nose.position.set(0, 0.35, -2.7);
+
+            // Cabin (Sloped cockpit)
+            const cabinGeo = new THREE.BoxGeometry(1.4, 0.5, 2.2);
+            const cabinMat = new THREE.MeshPhongMaterial({ 
+                color: 0x111111,
+                shininess: 200,
+                specular: 0x555555
+            });
+            const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+            cabin.position.set(0, 0.85, -0.4);
+            
+            // Neon Side Stripes
+            const stripeGeo = new THREE.BoxGeometry(2.3, 0.05, 4.0);
+            const stripeMat = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+            const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+            stripe.position.y = 0.4;
+
+            // Spoiler
+            const spoilerWingGeo = new THREE.BoxGeometry(2.4, 0.1, 0.6);
+            const spoilerWing = new THREE.Mesh(spoilerWingGeo, bodyMat);
+            spoilerWing.position.set(0, 1.1, 2.0);
+            
+            const spoilerStrutGeo = new THREE.BoxGeometry(0.1, 0.4, 0.3);
+            const strutL = new THREE.Mesh(spoilerStrutGeo, cabinMat);
+            strutL.position.set(-0.8, 0.85, 2.0);
+            const strutR = new THREE.Mesh(spoilerStrutGeo, cabinMat);
+            strutR.position.set(0.8, 0.85, 2.0);
+
+            carGroup.add(body);
+            carGroup.add(nose);
+            carGroup.add(cabin);
+            carGroup.add(stripe);
+            carGroup.add(spoilerWing);
+            carGroup.add(strutL);
+            carGroup.add(strutR);
+
+            // Wheels
+            const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 16);
+            const wheelMat = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+
+            const wheelPositions = [
+                [-1.1, 0, 1.2], [1.1, 0, 1.2],
+                [-1.1, 0, -1.2], [1.1, 0, -1.2]
+            ];
+
+            wheelPositions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+                wheel.rotation.z = Math.PI / 2;
+                wheel.position.set(...pos);
+                carGroup.add(wheel);
+            });
+
+            // Headlights (Glow)
+            const hlGeo = new THREE.PlaneGeometry(0.5, 0.2);
+            const hlMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const hlLeft = new THREE.Mesh(hlGeo, hlMat);
+            hlLeft.position.set(-0.8, 0.4, -2.26);
+            carGroup.add(hlLeft);
+            const hlRight = new THREE.Mesh(hlGeo, hlMat);
+            hlRight.position.set(0.8, 0.4, -2.26);
+            carGroup.add(hlRight);
+
+            // Tail/Brake Lights
+            const tlGeo = new THREE.PlaneGeometry(0.8, 0.15); // Wider tail lights
+            const tlMat = new THREE.MeshBasicMaterial({ color: 0x440000 }); // Dim red normally
+            const tlLeft = new THREE.Mesh(tlGeo, tlMat);
+            tlLeft.position.set(-0.6, 0.4, 2.26);
+            carGroup.add(tlLeft);
+            const tlRight = new THREE.Mesh(tlGeo, tlMat);
+            tlRight.position.set(0.6, 0.4, 2.26);
+            carGroup.add(tlRight);
+            brakeLights.push(tlLeft, tlRight);
+
+            scene.add(carGroup);
+        }
+
+
+
+        function buildObstacles() {
+            // ENHANCED OBSTACLES: Floating Neon Mines
+            // 1. Solid glowing inner core (made larger for distant visibility)
+            const coreGeo = new THREE.IcosahedronGeometry(2.0, 0); 
+            const coreMat = new THREE.MeshPhongMaterial({ 
+                color: 0xff4444, 
+                emissive: 0xff0000, // Max emissive red
+                emissiveIntensity: 1.5, // Make the glow pierce through fog
+                specular: 0xffffff,
+                shininess: 100,
+                flatShading: true,
+                fog: false // IMMUNE TO FOG: Visible at absolute maximum distance
+            });
+
+            // 2. Spinning wireframe outer shell (made thicker and larger)
+            const shellGeo = new THREE.IcosahedronGeometry(2.8, 0);
+            const shellMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff, // White shell for extreme contrast
+                wireframe: true,
+                transparent: true,
+                opacity: 1.0, // Highly visible
+                fog: false // IMMUNE TO FOG
+            });
+
+            for (let i = 0; i < OBSTACLE_COUNT; i++) {
+                const obsGroup = new THREE.Group(); // Group them together
+
+                const core = new THREE.Mesh(coreGeo, coreMat);
+                core.name = "core"; // Tag for animation
+                obsGroup.add(core);
+
+                const shell = new THREE.Mesh(shellGeo, shellMat);
+                shell.name = "shell"; // Tag for animation
+                obsGroup.add(shell);
+
+                // Pass the index 'i' so we can space them out perfectly on load
+                resetObstacle(obsGroup, true, i);
+                scene.add(obsGroup);
+                obstacles.push(obsGroup);
+            }
+        }
+
+        function resetObstacle(obs, isInit = false, index = 0) {
+            // Random X position within road width (so it still forces you to steer left/right)
+            obs.position.x = (Math.random() - 0.5) * ROAD_WIDTH;
+
+            // STRICT SPACING LOGIC: Prevents impossible walls!
+            if (isInit) {
+                // Initial load: Space each obstacle exactly 90 units apart for higher speeds (was 60)
+                obs.position.z = -100 - (index * 90);
+            } else {
+                // Recycling: Find the furthest obstacle currently on the track
+                let furthestZ = 100;
+                for (let i = 0; i < obstacles.length; i++) {
+                    // Ignore the one we are currently resetting
+                    if (obstacles[i] !== obs && obstacles[i].position.z < furthestZ) {
+                        furthestZ = obstacles[i].position.z;
+                    }
+                }
+                // Place this recycled obstacle exactly 90 units behind the furthest one
+                obs.position.z = furthestZ - 90;
+            }
+
+            // Random slight rotation
+            obs.rotation.y = Math.random() * Math.PI;
+            obs.rotation.x = Math.random() * Math.PI;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- 2. MEDIAPIPE HAND TRACKING SETUP ---
+        const hands = new Hands({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+            }
+        });
+
+        hands.setOptions({
+            maxNumHands: 1, // Only track one hand for simplicity
+            modelComplexity: 1, // Balance between performance and accuracy
+            minDetectionConfidence: 0.5, // Lowered slightly to grab hand faster
+            minTrackingConfidence: 0.4  // Lowered significantly to prevent drops during fast motion blur
+        });
+
+        hands.onResults(onHandResults);
+
+        // Helper function to calculate distance between two landmarks
+        function getDistance(p1, p2) {
+            return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+        }
+
+        // This runs every time a frame is processed by MediaPipe
+        function onHandResults(results) {
+            // Draw mini-feed
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            // Draw image (Mirrored naturally by canvas CSS, so we draw normal here)
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
+
+                // Draw skeleton on mini feed
+                drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
+                drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 2 });
+
+                // --- STEERING LOGIC ---
+                // We use landmark 9 (middle finger metacarpal/knuckle) as the center of the hand
+                const handCenterPoint = landmarks[9];
+
+                // handCenterPoint.x is between 0 (left of image) and 1 (right of image).
+                // Because the webcam is mirrored visually for the user, moving hand to THEIR left 
+                // appears on the RIGHT side of the raw webcam image (x near 1).
+                // Let's flip it so 0 is user's left, 1 is user's right.
+                let normalizedX = 1.0 - handCenterPoint.x;
+
+                // Map [0, 1] to road bounds [-ROAD_WIDTH/2, ROAD_WIDTH/2]
+                // Add a little deadzone/multiplier so they don't have to reach the absolute edge of the camera
+                let mappedX = (normalizedX - 0.5) * (ROAD_WIDTH * 1.5);
+
+                // Clamp to road boundaries
+                targetCarX = Math.max(-ROAD_WIDTH / 2 + 1, Math.min(ROAD_WIDTH / 2 - 1, mappedX));
+
+                // --- NEW: THROTTLE LOGIC (Hand Openness) ---
+                const wrist = landmarks[0];
+                const palmCenter = landmarks[9];
+                const handSize = getDistance(wrist, palmCenter); // Reference size to adapt to how close hand is to camera
+
+                // Calculate average distance of fingertips to wrist
+                const fingertips = [8, 12, 16, 20]; // Index, Middle, Ring, Pinky
+                let totalDist = 0;
+                fingertips.forEach(tip => {
+                    totalDist += getDistance(wrist, landmarks[tip]);
+                });
+                const avgFingerDist = totalDist / fingertips.length;
+
+                // Ratio: ~1.0 when closed fist, ~1.8 when fully open (reduced from 2.2 for easier 100%)
+                const openRatio = avgFingerDist / handSize;
+
+                // Map ratio to percentage (0.0 to 1.0)
+                // Lowered the max threshold so you don't have to stretch your fingers as hard
+                let openPercent = (openRatio - 1.0) / (1.8 - 1.0);
+                openPercent = Math.max(0, Math.min(1, openPercent)); // Clamp between 0% and 100%
+
+                if (openPercent < 0.2) {
+                    // Closed Fist (0-20% open) = HARD BRAKE
+                    targetThrottle = 0.1; // Almost complete stop
+                    targetFOV = 50;
+                    throttleStatusDisplay.innerText = '🛑 TOTAL BRAKE';
+                    throttleStatusDisplay.style.color = '#ff0000';
+                    brakeLights.forEach(l => l.material.color.setHex(0xff0000)); // Bright Red Brakes ON
+                } else if (openPercent > 0.85) {
+                    // Fully Open (85-100% open) = SUPER SPEED
+                    targetThrottle = 4.0; // MASSIVE BOOST (was 2.8)
+                    targetFOV = 110; // Extreme warp speed camera stretch
+                    throttleStatusDisplay.innerText = '🚀 MAX SPEED!';
+                    throttleStatusDisplay.style.color = '#ff8800';
+                    brakeLights.forEach(l => l.material.color.setHex(0x440000)); // Brakes off
+                } else {
+                    // Partially Open = PROPORTIONAL POWER (Analog throttle)
+                    // Maps the 20%-85% open range smoothly to throttle power
+                    targetThrottle = 0.5 + (openPercent * 2.0); // Slightly more aggressive analog scaling
+                    targetFOV = 60 + (openPercent * 15);
+                    throttleStatusDisplay.innerText = `🟢 POWER: ${Math.round(openPercent * 100)}%`;
+                    throttleStatusDisplay.style.color = '#00ffff';
+                    brakeLights.forEach(l => l.material.color.setHex(0x440000)); // Brakes off
+                }
+            }
+            canvasCtx.restore();
+
+            // Start game once the AI model has successfully processed the first frame
+            if (gameState === 'LOADING') {
+                startGame();
+            }
+        }
+
+        // --- 3. GAME LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (gameState === 'PLAYING') {
+                updateGame();
+            } else if (gameState === 'MENU' || gameState === 'GAMEOVER') {
+                // Moving grid lines
+                gridHelper.position.z += 0.1;
+                if (gridHelper.position.z >= 5) gridHelper.position.z = 0; // Size of grid cell
+
+                dashedLineGroup.children.forEach(dash => {
+                    dash.position.z += 0.1;
+                    if (dash.position.z > 20) dash.position.z -= 140;
+                });
+
+                if (gameState === 'MENU') {
+                    // Animate idle car
+                    carGroup.position.y = Math.sin(Date.now() * 0.005) * 0.1 + 0.4;
+                } else if (gameState === 'GAMEOVER') {
+                    // Grounded Crash Animation (Car stops and spins out realistically)
+                    carGroup.position.x += crashPhysics.x;
+                    carGroup.position.y += crashPhysics.y;
+                    carGroup.position.z += crashPhysics.z;
+                    carGroup.rotation.y += crashPhysics.ry; // Spin out
+
+                    // Apply friction to physics so it slides to a halt
+                    crashPhysics.x *= 0.95;
+                    crashPhysics.y *= 0.90; // Settle back to ground if bumped up
+                    crashPhysics.z *= 0.95;
+                    crashPhysics.ry *= 0.95;
+                    
+                    // Keep car above ground
+                    if(carGroup.position.y < 0.35) {
+                        carGroup.position.y = 0.35;
+                        crashPhysics.y = 0;
+                    }
+
+                    // Camera shake (short and grounded)
+                    cameraShake *= 0.85; // Decays faster
+                    if (cameraShake > 0.05) {
+                        camera.position.x = (Math.random() - 0.5) * cameraShake;
+                        camera.position.y = 5 + (Math.random() - 0.5) * cameraShake;
+                    } else {
+                        camera.position.x = 0;
+                        camera.position.y = 5;
+                    }
+
+                    // Update explosion particles (short burst)
+                    for (let i = explosionParticles.length - 1; i >= 0; i--) {
+                        let p = explosionParticles[i];
+                        p.mesh.position.add(p.velocity);
+                        p.mesh.scale.multiplyScalar(0.9);
+                        p.mesh.material.opacity -= 0.08; // Fades out faster
+                        if (p.mesh.material.opacity <= 0) {
+                            scene.remove(p.mesh);
+                            explosionParticles.splice(i, 1);
+                        }
+                    }
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function updateGame() {
+            // Increase score and speed
+            score += 1;
+            timeElapsed += 0.016;
+            scoreDisplay.innerText = `SCORE: ${score}`;
+
+            // Smooth out throttle and FOV transitions
+            currentThrottle += (targetThrottle - currentThrottle) * 0.1;
+            camera.fov += (targetFOV - camera.fov) * 0.1;
+            camera.updateProjectionMatrix();
+
+            // Slowly increase base speed multiplier up to a cap
+            if (speedMultiplier < 5.0) { // RAISED SPEED CAP (was 3.0)
+                speedMultiplier += 0.001; // Accelerates to max speed faster
+            }
+
+            // Final speed combines base progression AND user throttle input
+            let currentSpeed = baseSpeed * speedMultiplier * currentThrottle;
+
+            // Update Speedometer UI
+            speedValueDisplay.innerText = Math.floor(currentSpeed * 400); // UI reflects higher speed
+
+            // Dynamic Fog Color based on speed tier
+            let fogHue = 0.6 + (speedMultiplier - 1.0) * 0.4; // Shifts from dark blue to purple/red
+            if (fogHue > 1.0) fogHue -= 1.0;
+            scene.fog.color.setHSL(fogHue, 0.8, 0.05);
+
+            // Update Sun stripes to match fog color so the "cutouts" blend perfectly
+            sunGroup.children.forEach((child, index) => {
+                if (index > 0) child.material.color.copy(scene.fog.color);
+            });
+
+            // 1. Move Grid (Illusion of movement)
+            gridHelper.position.z += currentSpeed;
+            if (gridHelper.position.z >= 2) {
+                gridHelper.position.z -= 2; // Reset seamlessly
+            }
+
+            // Move center dashed lines
+            for (let i = 0; i < centerLines.length; i++) {
+                let dash = centerLines[i];
+                dash.position.z += currentSpeed;
+                if (dash.position.z >= 10) {
+                    dash.position.z -= 200; // Reset back (20 dashes * 10 unit spacing)
+                }
+            }
+
+            // Move Stars for parallax speed effect
+            starMesh.position.z += currentSpeed * 0.5; // Stars move half as fast as the road
+            if (starMesh.position.z > 500) {
+                starMesh.position.z = 0; // Loop stars seamlessly
+            }
+
+            // Move Mountains
+            for (let i = 0; i < mountains.length; i++) {
+                let m = mountains[i];
+                m.position.z += currentSpeed * 0.7; // Mountains move slightly slower than road
+                if (m.position.z > 100) {
+                    m.position.z -= 1000; // Send back to horizon
+                    let side = i % 2 === 0 ? 1 : -1;
+                    m.position.x = side * (100 + Math.random() * 200);
+                }
+            }
+
+            // 2. Steer Car (Smooth interpolation towards targetX set by Hand Tracking)
+            // Car leans into the turn
+            carGroup.position.x += (targetCarX - carGroup.position.x) * 0.15;
+            let turnAngle = (targetCarX - carGroup.position.x) * -0.1;
+            carGroup.rotation.z = Math.max(-0.4, Math.min(0.4, turnAngle)); // Tilt
+            carGroup.rotation.y = Math.max(-0.3, Math.min(0.3, turnAngle * 0.8)); // Yaw
+
+            // Add slight hover bounce
+            carGroup.position.y = Math.sin(timeElapsed * 5) * 0.05 + 0.4;
+
+            // Exhaust Trail Particles (Change color based on speed)
+            if (Math.random() > (currentThrottle < 1.0 ? 0.8 : 0.3)) { // Less particles when braking
+                const pGeo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+
+                // Color changes: Cyan normal, Orange/Yellow for boost
+                let particleColor = currentThrottle > 1.5 ? 0xffaa00 : 0x00ffff;
+
+                const pMat = new THREE.MeshBasicMaterial({ color: particleColor, transparent: true, opacity: 0.8 });
+                const particle = new THREE.Mesh(pGeo, pMat);
+                // Position at the back of the car
+                particle.position.copy(carGroup.position);
+                particle.position.z += 2;
+                particle.position.y -= 0.2;
+                scene.add(particle);
+                trailParticles.push(particle);
+            }
+
+            // Update trail particles
+            for (let i = trailParticles.length - 1; i >= 0; i--) {
+                let p = trailParticles[i];
+                p.position.z += currentSpeed * 0.5; // Move back slower than the road
+                p.scale.multiplyScalar(0.9); // Shrink
+                p.material.opacity -= 0.05; // Fade
+                if (p.material.opacity <= 0) {
+                    scene.remove(p);
+                    trailParticles.splice(i, 1);
+                }
+            }
+
+            // 3. Update Obstacles and Check Collisions
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+
+                let prevZ = obs.position.z;
+                // Move obstacle towards player
+                obs.position.z += currentSpeed;
+                let currZ = obs.position.z;
+
+                // ENHANCED ANIMATION: Floating and complex dual-rotation
+                obs.position.y = 1.5 + Math.sin(timeElapsed * 4 + i) * 0.8; // Bobbing up and down
+
+                const core = obs.getObjectByName("core");
+                const shell = obs.getObjectByName("shell");
+                if (core && shell) {
+                    core.rotation.x += 0.02;
+                    core.rotation.y += 0.03;
+                    shell.rotation.x -= 0.01; // Outer shell spins opposite direction
+                    shell.rotation.z -= 0.02;
+                }
+
+                // Collision Detection: Accurate 2D swept collision handling high speeds
+                // Checks if obstacle intersects car Z bounds this frame, or jumps completely past it
+                let zOverlap = (currZ > -3.5 && currZ < 3.5) || (prevZ <= 0 && currZ >= 0);
+
+                if (zOverlap) {
+                    let dx = Math.abs(carGroup.position.x - obs.position.x);
+                    if (dx < 2.2) { // 2.2 units of horizontal leniency
+                        gameOver(currentSpeed);
+                        return; // Stop updating
+                    }
+                }
+
+                // Recycle obstacle if it passed the camera
+                if (obs.position.z > 15) {
+                    resetObstacle(obs, false);
+                }
+            }
+
+
+        }
+
+        function startGame() {
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+
+            score = 0;
+            speedMultiplier = 1.0;
+            targetCarX = 0;
+            targetThrottle = 1.0;
+            currentThrottle = 1.0;
+            carGroup.position.set(0, 0, 0);
+            carGroup.rotation.set(0, 0, 0);
+            timeElapsed = 0;
+            camera.position.set(0, 5, 12);
+            camera.rotation.set(0, 0, 0);
+
+            // Clear old particles
+            trailParticles.forEach(p => scene.remove(p));
+            trailParticles = [];
+            explosionParticles.forEach(p => scene.remove(p.mesh));
+            explosionParticles = [];
+
+            // Reset obstacles (pass index to perfectly space them out again)
+            obstacles.forEach((obs, index) => resetObstacle(obs, true, index));
+
+            gameState = 'PLAYING';
+        }
+
+        function gameOver(speedAtCrash = 0.5) {
+            gameState = 'GAMEOVER';
+
+            // Scale factor based on speed (normal speed is around ~0.5. Boost makes it > 2.0)
+            // Removed Math.max(1.0, ...) so low speeds get a much smaller multiplier
+            let speedScale = speedAtCrash * 2.0; 
+
+            // Explosion effect (simple flash)
+            scene.fog.color.setHex(0xff0000);
+            setTimeout(() => {
+                scene.fog.color.setHex(0x050510);
+            }, 300);
+
+            // Trigger crash physics scaled by speed
+            // Car just slides, skids, and stops instead of flying into the air
+            crashPhysics = { 
+                x: (Math.random() - 0.5) * 1.0 * speedScale, 
+                y: 0.1 * speedScale, // Very small vertical bump
+                z: 0.3 * speedScale, // Slides slightly backwards
+                ry: (Math.random() - 0.5) * 0.8 * speedScale, // Spins around Y axis
+            };
+            cameraShake = 0.5 + (speedScale * 0.5); // Much more subtle shake
+
+            // Create explosion particles (spark effects rather than massive fireball)
+            const pGeo = new THREE.BoxGeometry(0.2, 0.2, 0.2); // Smaller particles
+            let particleCount = Math.max(5, Math.floor(15 * speedScale)); // Reduced count
+            for(let i=0; i<particleCount; i++) {
+                const pMat = new THREE.MeshBasicMaterial({ 
+                    color: Math.random() > 0.5 ? 0xffffff : 0xffaa00, // Yellow/White sparks
+                    transparent: true, 
+                    opacity: 1.0 
+                });
+                const mesh = new THREE.Mesh(pGeo, pMat);
+                mesh.position.copy(carGroup.position);
+                
+                let velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 2.0 * speedScale,
+                    (Math.random() - 0.5) * 2.0 * speedScale,
+                    (Math.random() - 0.5) * 2.0 * speedScale
+                );
+                
+                scene.add(mesh);
+                explosionParticles.push({ mesh, velocity });
+            }
+
+            // Delay game over screen slightly for dramatic effect
+            setTimeout(() => {
+                gameOverScreen.style.display = 'block';
+                finalScoreDisplay.innerText = score;
+            }, 1500);
+        }
+
+        // --- INITIALIZATION ---
+        initThreeJS();
+
+        // Setup Camera via MediaPipe CameraUtils
+        const cameraUtils = new Camera(videoElement, {
+            onFrame: async () => {
+                await hands.send({ image: videoElement });
+            },
+            width: 640,
+            height: 480
+        });
+
+        // Event Listeners
+        startBtn.addEventListener('click', () => {
+            startBtn.disabled = true;
+            startBtn.innerText = 'LOADING AI...';
+            loadingStatus.innerText = 'Warming up neural network...';
+
+            // First time start - initiate camera
+            cameraUtils.start().catch(err => {
+                alert("Camera access is required to play this game!");
+                console.error(err);
+                startBtn.disabled = false;
+                startBtn.innerText = 'START ENGINE';
+                loadingStatus.innerText = 'Waiting for camera permission...';
+            });
+        });
+
+        restartBtn.addEventListener('click', startGame);
+
+    </script>
+</body>
+
+</html>

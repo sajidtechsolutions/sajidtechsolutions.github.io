@@ -662,6 +662,10 @@ footer {
 }
 
 /* Animations */
+.mobile-toggle {
+    display: none;
+}
+
 @keyframes fade-up {
     from {
         opacity: 0;
@@ -718,7 +722,9 @@ html {
     .mobile-toggle {
         display: block;
         padding: 10px;
-        /* Larger touch target */
+        cursor: pointer;
+        z-index: 1001;
+        position: relative;
     }
 
     .nav-links {
@@ -737,7 +743,7 @@ html {
         opacity: 0;
         transition: all 0.4s var(--ease-out-quart);
         pointer-events: none;
-        z-index: -1;
+        z-index: 1000;
     }
 
     .nav-links.active {
